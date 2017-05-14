@@ -1,8 +1,8 @@
 # Basic Makefile
 
 ### Compilers
-CC = $(DATAHOME).local/gcc-5.4.0-install/bin/gcc
-CXX = $(DATAHOME).local/gcc-5.4.0-install/bin/g++
+CC = gcc
+CXX = g++
 
 DEBUG_LEVEL     = -g
 EXTRA_CCFLAGS   = -W -Wall -std=c++11
@@ -16,7 +16,7 @@ INCDIR := include
 
 ### ROOT
 ROOTCFLAGS := $(shell root-config --cflags) -DUSE_ROOT -fPIC
-ROOTLIBS   := $(shell root-config --libs)
+ROOTLIBS   := $(shell root-config --libs) -lSpectrum
 
 CPPFLAGS  += -I$(ROOTSYS)/include -I$(INCDIR) $(ROOTCFLAGS) 
 EXTRALIBS = $(ROOTLIBS)
@@ -24,19 +24,27 @@ EXTRALIBS = $(ROOTLIBS)
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(subst .cpp,.o,$(SRCS))
 
-all: PMTAnalysis showPlots
+all: PMTAnalysis
 
 PMTAnalysis: main.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o PMTAnalysis main.cpp $(OBJS) $(ROOTLIBS)
-	$(RM) main.o
+	$(RM) main.o $(OBJS)
 
 showPlots: showPlots.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o showPlots showPlots.cpp $(OBJS) $(ROOTLIBS)
-	$(RM) showPlots.o
+	$(RM) showPlots.o $(OBJS)
 
 darkRates: darkRates.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o darkRates darkRates.cpp $(OBJS) $(ROOTLIBS)
-	$(RM) darkRates.o
+	$(RM) darkRates.o $(OBJS)
+
+afterPulses: afterPulses.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o afterPulses afterPulses.cpp $(OBJS) $(ROOTLIBS)
+	$(RM) afterPulses.o $(OBJS)
+
+undershoot: undershoot.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o undershoot undershoot.cpp $(OBJS) $(ROOTLIBS)
+	$(RM) undershoot.o $(OBJS)
 
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses

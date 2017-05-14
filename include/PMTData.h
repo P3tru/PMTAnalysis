@@ -11,6 +11,8 @@
 #include <sstream>
 #include <fstream>
 #include <TH1I.h>
+#include <TGraph.h>
+#include <TSpectrum.h>
 
 class PMTData {
  private:
@@ -27,11 +29,29 @@ class PMTData {
   std::vector<TH1I*> hSignal;
   std::vector<TH1I*> hBckg;
 
-  // Parameter for histogram
+  // Ground Parameter for histograms
   int GND;
 
   // Dark Rates
   int darkRates;
+
+  // Graphs of individual signals
+  std::vector<TH1I*> hPulses;
+  std::vector<TGraph*> gPulses;
+  int nbPulses;
+
+  // Undershoot Histogram
+  TH1D *hUndershoot;
+
+  // Define TSpectrum for searching signals
+  std::vector<TSpectrum*> sSignal;
+
+  // Define TSpectrum for searching afterpulses
+  std::vector<TSpectrum*> sAfterPulses;
+  TH1D *hAfterPulses;
+
+  // QTOTS
+  TH1D *hQtots;
 
  public:
   // Constructor
@@ -41,8 +61,11 @@ class PMTData {
 
   void createTree();
   void createSignalHistograms();
-  void drawHist(int nbPlots=0, int iP=0);
+  void drawHist(int nbPlots=0, int iP=0, double rangeMin=-100, double rangeMax=100);
   void computeDarkRates(int ampPE=0);
+  void createSignal();
+  void drawSignal(int nbPlots=0, int iP=0, double rangeMin=-100, double rangeMax=100);
+  void computeAfterPulses();
 
   // Defining integration parameter in sample
   const int nbSamples=1024;
