@@ -18,7 +18,8 @@ class PMTData {
  private:
   // Data file to be open in ASCII from the DAQ
   std::ifstream inputFile;
-  std::stringstream filename;
+  std::string inputFilePath;
+  std::string inputFileName;
 
   // Output file
   TFile *file;
@@ -55,9 +56,25 @@ class PMTData {
 
  public:
   // Constructor
-  PMTData(const char* filename=NULL);
+  PMTData();
+  PMTData(PMTData const& copy);
+  PMTData(std::string fname);
   // Destructor
   ~PMTData();
+
+  void setInputFilePath(std::string f){ inputFilePath=f; }
+  std::string getInputFilePath() const { return inputFilePath; }
+
+  void setInputFileName(std::string f){ inputFileName=f; }
+  std::string getInputFileName() const { return inputFileName; }
+
+  void openDataFile(std::string fName){ inputFile.open(fName.c_str()); };
+
+  void setROOTFile(TFile *f){ file=f; };
+  TFile *getROOTFile() const { return file; };
+
+  void setROOTTree(TTree *f){ tree=f; };
+  TTree *getROOTTree() const { return tree; };
 
   void createTree();
   void createSignalHistograms();

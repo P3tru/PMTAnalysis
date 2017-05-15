@@ -48,6 +48,7 @@ data/*
 # CLION
 ##############
 .idea/
+cmake-build-default/
 
 # PDF
 ##############

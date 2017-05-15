@@ -10,24 +10,36 @@
 #include "utils.h"
 #include "PMTData.h"
 
-PMTData::PMTData(const char* fname) {
-  inputFile.open(fname);
-
-  filename << getFileName(fname) << ".root";
-
-  // Check if root file already exist
-  //file = new TFile(filename.str().c_str(),"RECREATE");
-
+PMTData::PMTData() {
   tree = new TTree("PMTData","PMTData");
+  GND=0;
+}
 
+PMTData::PMTData(PMTData const &copy) {
+  inputFilePath = copy.getInputFilePath();
+  inputFileName = copy.getInputFileName();
+  file = copy.getROOTFile();
+  tree = copy.getROOTTree();
+  GND=0;
+}
+
+
+PMTData::PMTData(std::string fname) {
+  inputFilePath = fname;
+  tree = new TTree("PMTData","PMTData");
   GND=0;
 }
 
 void PMTData::createTree() {
 
+  // Parameter to read line from input file
   std::string line;
 
+  // Determine the ground baseline of signal
   TH1I hGND("hGND","hGND",100,8200,8300);
+
+  openDataFile(inputFilePath);
+  inputFileName = getFileName(inputFilePath);
 
   if(inputFile.is_open()){
     int data[1024];
@@ -64,10 +76,6 @@ void PMTData::createTree() {
 }
 PMTData::~PMTData() {
 
-//  tree->Write();
-//  file->Close();
-//  std::cout << "File " << filename.str() << " created" << std::endl;
-
   delete file;
   delete tree;
 
@@ -84,19 +92,20 @@ void PMTData::createSignalHistograms() {
 
   hSignal.reserve(nbEntries);
 
+  std::cout << "Create histograms from raw signals" << std::endl;
+
   for (int iEntry = 0; iEntry < nbEntries; iEntry++) {
     // Point to data
     tree->GetEntry(iEntry);
 
     // Create histogram and graph of signal
-    hSignal[iEntry] = new TH1I(Form("hSignal%d",iEntry),Form("Signal"),nbSamples,0,nbSamples);
+    hSignal[iEntry] = new TH1I(Form("hSignal%s%d",inputFileName.c_str(),iEntry),Form("Signal"),nbSamples,0,nbSamples);
     hSignal[iEntry]->GetXaxis()->SetTitle("Time (4ns)");
     hSignal[iEntry]->GetYaxis()->SetTitle("ADC Channel");
 
     // Fill hist and graph
     for(int i=0;i<nbSamples;i++){
-      int y = - (int)data[i] + GND;
-      hSignal[iEntry]->SetBinContent(i+1,y);
+      hSignal[iEntry]->SetBinContent(i+1,-(int)data[i] + GND);
     }
 
     // Give status
@@ -157,7 +166,7 @@ void PMTData::computeDarkRates(int ampPE) {
 }
 void PMTData::createSignal() {
 
-  hQtots = new TH1D("hQtots","Pulse charge distribution",1000,-1000,40000);
+  hQtots = new TH1D(Form("hQtots%s",inputFileName.c_str()),"Pulse charge distribution",1000,-1000,40000);
   hQtots->GetXaxis()->SetTitle("ADC Channels");
   hQtots->Sumw2();
 
@@ -166,6 +175,8 @@ void PMTData::createSignal() {
   gPulses.reserve(nbEntries*5); // Approx 4-5 signals by DAQ window
   hPulses.reserve(nbEntries*5); // Approx 4-5 signals by DAQ window
   int iP=0;
+
+  std::cout << "Create signal histogram" << std::endl;
 
   for (int iEntry=0;iEntry<nbEntries;iEntry++) {
     // Histograms and graphs are defined
@@ -183,7 +194,7 @@ void PMTData::createSignal() {
       gPulses[iP]->SetMarkerStyle(kMultiply);
       gPulses[iP]->SetMarkerSize(1.);
 
-      hPulses[iP] = new TH1I(Form("hPulses%d %d",iEntry, iPeak),Form("Pulse"),nTot,0,nTot);
+      hPulses[iP] = new TH1I(Form("hPulses%s%d%d",inputFileName.c_str(),iEntry,iPeak),Form("Pulse"),nTot,0,nTot);
       hPulses[iP]->GetXaxis()->SetTitle("Time (4ns)");
       hPulses[iP]->GetYaxis()->SetTitle("ADC Channel");
 
@@ -206,6 +217,8 @@ void PMTData::createSignal() {
       } // END IF
     } // END FOR PEAKS
 
+    // Give status
+    if(iEntry % 1000 == 0) std::cout << iEntry << " Processed (" << (int)((double)(iEntry)*100/(double)(nbEntries)) << "%)" << std::endl;
 
   } // END IENTRY
 
@@ -310,4 +323,3 @@ void PMTData::computeAfterPulses() {
   hAfterPulses->Draw();
 
 }
-

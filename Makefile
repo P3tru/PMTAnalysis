@@ -1,8 +1,8 @@
 # Basic Makefile
 
 ### Compilers
-CC = gcc
-CXX = g++
+CC  = $(DATAHOME)/.local/gcc-5.4.0-install/bin/gcc
+CXX = $(DATAHOME)/.local/gcc-5.4.0-install/bin/g++
 
 DEBUG_LEVEL     = -g
 EXTRA_CCFLAGS   = -W -Wall -std=c++11
@@ -17,9 +17,11 @@ INCDIR := include
 ### ROOT
 ROOTCFLAGS := $(shell root-config --cflags) -DUSE_ROOT -fPIC
 ROOTLIBS   := $(shell root-config --libs) -lSpectrum
+#USERLIBS   := -lUtils
 
 CPPFLAGS  += -I$(ROOTSYS)/include -I$(INCDIR) $(ROOTCFLAGS) 
-EXTRALIBS = $(ROOTLIBS)
+EXTRALIBS  = $(ROOTLIBS)
+#EXTRALIBS += $(USERLIBS)
 
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(subst .cpp,.o,$(SRCS))
@@ -46,5 +48,9 @@ undershoot: undershoot.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o undershoot undershoot.cpp $(OBJS) $(ROOTLIBS)
 	$(RM) undershoot.o $(OBJS)
 
+showSignals: showSignals.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o showSignals showSignals.cpp $(OBJS) $(ROOTLIBS)
+	$(RM) showSignals.o $(OBJS)
+
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot showSignals
