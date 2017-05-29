@@ -24,22 +24,23 @@ endif()
 # Locate sources and headers for this project
 # ## NOT NEEDED FOR DICT
 include_directories(${PROJECT_SOURCE_DIR}/include
+                    /users/zsoldos/.local/include
                     ${ROOT_INCLUDE_DIRS})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 #----------------------------------------------------------------------------
 # Add the executable
 #
-add_executable(PMTAnalysis main.cpp ${sources} ${headers})
-target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES})
+add_executable(PMTAnalysis main.cc ${sources} ${headers})
+target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} -lUtils)
 
-#file( GLOB APP_SOURCES *.cpp )
+#file( GLOB APP_SOURCES *.cc )
 #foreach( testsourcefile ${APP_SOURCES} )
 #  # I used a simple string replace, to cut off .cpp.
 #  string( REPLACE ".cpp" "" testname ${testsourcefile} )
