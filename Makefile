@@ -1,8 +1,8 @@
 # Basic Makefile
 
 ### Compilers
-CC  = $(DATAHOME)/.local/gcc-5.4.0-install/bin/gcc
-CXX = $(DATAHOME)/.local/gcc-5.4.0-install/bin/g++
+CC  = gcc
+CXX = g++
 
 DEBUG_LEVEL     = -g
 EXTRA_CCFLAGS   = -W -Wall -std=c++11
