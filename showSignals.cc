@@ -4,7 +4,7 @@
 #include <TLine.h>
 
 #include <PMTData.hh>
-//#include <PMTAnal.hh>
+#include <PMTAnal.hh>
 
 #include <utils.h>
 
