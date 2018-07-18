@@ -2,6 +2,7 @@
 #include <TApplication.h>
 
 #include <PMTData.hh>
+#include <PMTAnalyzer.hh>
 
 #define MAXNUMFILES 10000 // MAX nb of files processed
 
@@ -9,6 +10,15 @@ static void show_usage(std::string name);
 static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources);
 
 int main(int argc, char *argv[]) {
+
+  /* TODO :
+   * Compute afterpulses of signals
+   * I think we should process like this
+   * - 1/ Detect every peak after the main one (using TSpectrum for exemple)
+   * - 2/ Compute integral of this afterpules peaks (charge of afterpulses)
+   * - 3/ Histogram of afterpulses charges, divided by charge of 1 photoelectron at this gain (norm)
+   * - 4/ Use time of the Acquisition to measure afterpulses rate
+  */
 
   // Nb files processed
   int nFiles = 0;

@@ -107,7 +107,7 @@ void PMTData::CreateWaveformsHistogram() {
     // Point to data
     treePMTData->GetEntry(iEntry);
 
-    for(int iCh = 0; iCh < hGlobal->NumCh; iCh++){
+    for(unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
 
       // Create histogram and graph of signal
       hSignal[iCh][iEntry] = new TH1I(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),

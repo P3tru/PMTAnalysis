@@ -6,6 +6,13 @@
 #define PMTANALYSIS_PMTANALYZER_HH
 
 class PMTAnalyzer {
+ protected:
+
+ public:
+  // Constructor
+  PMTAnalyzer();
+  // Destructor
+  ~PMTAnalyzer();
 
 };
 
