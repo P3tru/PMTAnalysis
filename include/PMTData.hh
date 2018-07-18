@@ -57,6 +57,7 @@ class PMTData {
 
   bool OpenPMTDataTTree();
   void CreateWaveformsHistogram();
+  void WriteOutputFile() { outputFile->Write(); } ;
 
   ////////////////////////////////////// //
   // Various accessors and set functions //
