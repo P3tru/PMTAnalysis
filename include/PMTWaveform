@@ -1,0 +1,53 @@
+//
+// Created by zsoldos on 13/12/17.
+//
+
+//#ifndef PMTANALYSIS_PMTWAVEFORM_HH
+//#define PMTANALYSIS_PMTWAVEFORM_HH
+//
+//#include "PMTData.hh"
+//
+//#include "TGraph.h"
+//
+//class PMTWaveform : public PMTData{
+//
+// protected:
+//  std::vector<double> time;
+//  std::vector<double> chA;
+//  std::vector<double> chB;
+//
+//  std::vector<std::string> names;
+//  std::vector<std::string> units;
+//
+//  TGraph *grChA;
+//  TGraph *grChB;
+//
+//  double TT;
+//
+// public:
+//  PMTWaveform();
+//  ~PMTWaveform();
+//
+//  void readData();
+//  bool createWaveform();
+//
+//  void setTGraph(TGraph *gr, std::string title,
+//                 std::vector<double> x, std::vector<double> y, int nbPts);
+//
+//  void drawTGraph(TGraph *gr,
+//                  int color=kBlue-4,
+//                  int lineStyle=2, int markerStyle=kPlus,
+//                  int lineSize=1, int markerSize=1);
+//
+//  void setChA(TGraph *gr){ grChA=gr; };
+//  TGraph *getChA() const { return grChA; };
+//
+//  void setChB(TGraph *gr){ grChB=gr; };
+//  TGraph *getChB() const { return grChB; };
+//
+//  void setTT(double tt){TT=tt;};
+//  double getTT(){return TT;};
+//
+//};
+//
+//#endif //PMTANALYSIS_PMTWAVEFORM_HH

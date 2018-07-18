@@ -8,14 +8,15 @@
 #include <string>
 #include <cmath>
 
-std::string getFileName(const std::string& str){
+inline std::string getFileName(const std::string& str){
   size_t found = str.find_last_of("/\\");
   std::string path = str.substr(found+1); // check that is OK
   return path;
 }
 
-double err(double p, double q, double t){
+inline double err(double p, double q, double t){
   return sqrt(p)/(q*t);
 }
+
 
 #endif //PMTANALYSIS_UTILS_H

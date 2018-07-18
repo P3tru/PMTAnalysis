@@ -40,16 +40,6 @@ Thumbs.db
 #########
 *~
 
-# Data files #
-##############
-data/*
-*.root
-
-# CLION
-##############
-.idea/
-cmake-build-default/
-
 # PDF
 ##############
 *.pdf
@@ -61,4 +51,4 @@ showPlots
 darkRates
 afterPulses
 undershoot
-showSignals
+timing

@@ -20,30 +20,24 @@ endif()
 #---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
 #include(${ROOT_USE_FILE})
 
+find_package(Boost 1.57.0 COMPONENTS system filesystem REQUIRED)
+
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # ## NOT NEEDED FOR DICT
 include_directories(${PROJECT_SOURCE_DIR}/include
-                    ${ROOT_INCLUDE_DIRS})
+                    ${ROOT_INCLUDE_DIRS}
+                    ${Boost_INCLUDE_DIRS})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 #----------------------------------------------------------------------------
 # Add the executable
 #
-add_executable(PMTAnalysis main.cpp ${sources} ${headers})
-target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES})
-
-#file( GLOB APP_SOURCES *.cpp )
-#foreach( testsourcefile ${APP_SOURCES} )
-#  # I used a simple string replace, to cut off .cpp.
-#  string( REPLACE ".cpp" "" testname ${testsourcefile} )
-#  add_executable( ${testname} ${testsourcefile} )
-#  # Make sure YourLib is linked to each app
-#  target_link_libraries( ${testname} ${ROOT_LIBRARIES} )
-#endforeach( testsourcefile ${APP_SOURCES} )
+add_executable(PMTAnalysis main.cc ${sources} ${headers})
+target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)

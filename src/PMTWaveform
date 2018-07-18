@@ -1,0 +1,135 @@
+//
+// Created by zsoldos on 13/12/17.
+//
+//
+//// Class Libraries
+//#include "PMTWaveform.hh"
+//
+//// STL Libraries
+//#include <iostream>
+//#include <numeric>
+//
+//// ROOT Libraries
+//#include <TH1I.h>
+//#include <TCanvas.h>
+//#include <TF1.h>
+//#include <TMath.h>
+//
+//// User-defined Libraries
+//#include <utils.h>
+//
+//PMTWaveform::PMTWaveform(){
+//  GND = 0;
+//  TT = 0;
+//
+//  grChA = new TGraph();
+//  grChB = new TGraph();
+//}
+//
+//PMTWaveform::~PMTWaveform(){
+//
+//  ///////////////////////////
+//  // Deleting all pointers //
+//  ///////////////////////////
+//
+//  delete grChA;
+//  delete grChB;
+//
+//  delete tree;
+//}
+//
+//bool PMTWaveform::createWaveform(){
+//
+//  // Parameter to read line from input data file
+//  std::string line;
+//
+//  // Determine the ground baseline of signal
+//  TH1I hGND("hGND","hGND",100,8200,8300);
+//
+//  // Open ASCII input data file
+//  inputFileName = getFileName(inputFilePath);
+//  openDataFile(inputFilePath);
+//
+//  if(inputFile.is_open()) {
+//
+//    // Read input file and create data array
+//    int iLineRead=0;
+//    while(getline(inputFile,line)) {
+//      iLineRead++;
+//
+//      std::stringstream test;
+//      std::string var;
+//      test << line;
+//
+//      int count=0;
+//      while(test >> var) {
+//        switch (iLineRead) {
+//          case 1:names.push_back(var);
+//            break;
+//          case 2:units.push_back(var);
+//            break;
+//          case 3:break;
+//          default:
+//            if(count==0) time.push_back(std::stod(var));
+//            if(count==1) chA.push_back(std::stod(var));
+//            if(count==2) chB.push_back(std::stod(var));
+//            count++;
+//            break;
+//        }
+//      }
+//
+//    } // END while getline
+//
+//    ///////////////////////////////
+//    // Create TGraph of Channels //
+//    ///////////////////////////////
+//
+//    // Ch A
+//    std::string chAName = " Channel A ; " + names[0] + " " + units[0] + " ; " + " Output " + " " + units[1];
+//    setTGraph(grChA, chAName, time, chA, time.size());
+//
+//    // GND Value for Ch B
+//    if(chB.size()!=0) GND = accumulate(chB.begin(),chB.end(),0.0)/chB.size();
+//
+//    std::string chBName = " Channel B ; " + names[0] + " " + units[0] + " ; " + " Output " + " " + units[2];
+//    setTGraph(grChB, chBName, time, chB, time.size());
+//
+//    // Find TT of waveform
+//    int locMin = TMath::LocMin(grChB->GetN(),grChB->GetY());
+//    TT = grChB->GetX()[locMin];
+//
+//    return true;
+//
+//  } else {
+//    std::cout << "File " << inputFileName << " can't be open" << std::endl;
+//    return false;
+//  }
+//
+//
+//}
+//
+//void PMTWaveform::setTGraph(TGraph *gr, std::string title,
+//                            std::vector<double> x, std::vector<double> y, int nbPts) {
+//  gr->SetTitle(title.c_str());
+//
+//  if(nbPts!=0){
+//    for(int i=0;i<nbPts;i++){
+//      gr->SetPoint(i,x[i],y[i]-GND);
+//    }
+//  }
+//
+//}
+//
+//void PMTWaveform::drawTGraph(TGraph *gr,
+//                             int color,
+//                             int lineStyle, int markerStyle,
+//                             int lineSize, int markerSize) {
+//  gr->SetLineColor(color);
+//  gr->SetLineStyle(lineStyle);
+//  gr->SetLineWidth(lineSize);
+//  gr->SetMarkerColor(color);
+//  gr->SetMarkerStyle(markerStyle);
+//  gr->SetMarkerSize(markerSize);
+//  gr->Draw("APC");
+//}
+//

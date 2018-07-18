@@ -17,40 +17,44 @@ INCDIR := include
 ### ROOT
 ROOTCFLAGS := $(shell root-config --cflags) -DUSE_ROOT -fPIC
 ROOTLIBS   := $(shell root-config --libs) -lSpectrum
-#USERLIBS   := -lUtils
 
-CPPFLAGS  += -I$(ROOTSYS)/include -I$(INCDIR) $(ROOTCFLAGS) 
+### BOOST
+BOOSTCFLAGS := -I/usr/include/boost/
+BOOSTLIBS   := -lboost_system -lboost_filesystem
+
+CPPFLAGS  += -I$(ROOTSYS)/include -I$(INCDIR) -I$(HOME)/.local/include $(ROOTCFLAGS)
+CPPFLAGS  +=  $(BOOSTCFLAGS)
 EXTRALIBS  = $(ROOTLIBS)
-#EXTRALIBS += $(USERLIBS)
+EXTRALIBS += $(BOOSTLIBS)
 
-SRCS = $(wildcard $(SRCDIR)/*.cpp)
-OBJS = $(subst .cpp,.o,$(SRCS))
+SRCS = $(wildcard $(SRCDIR)/*.cc)
+OBJS = $(subst .cc,.o,$(SRCS))
 
 all: PMTAnalysis
 
 PMTAnalysis: main.o $(OBJS)
-	$(CXX) $(CPPFLAGS) -o PMTAnalysis main.cpp $(OBJS) $(ROOTLIBS)
+	$(CXX) $(CPPFLAGS) -o PMTAnalysis main.cc $(OBJS) $(EXTRALIBS)
 	$(RM) main.o $(OBJS)
 
 showPlots: showPlots.o $(OBJS)
-	$(CXX) $(CPPFLAGS) -o showPlots showPlots.cpp $(OBJS) $(ROOTLIBS)
+	$(CXX) $(CPPFLAGS) -o showPlots showPlots.cc $(OBJS) $(EXTRALIBS)
 	$(RM) showPlots.o $(OBJS)
 
 darkRates: darkRates.o $(OBJS)
-	$(CXX) $(CPPFLAGS) -o darkRates darkRates.cpp $(OBJS) $(ROOTLIBS)
+	$(CXX) $(CPPFLAGS) -o darkRates darkRates.cc $(OBJS) $(EXTRALIBS)
 	$(RM) darkRates.o $(OBJS)
 
 afterPulses: afterPulses.o $(OBJS)
-	$(CXX) $(CPPFLAGS) -o afterPulses afterPulses.cpp $(OBJS) $(ROOTLIBS)
+	$(CXX) $(CPPFLAGS) -o afterPulses afterPulses.cc $(OBJS) $(EXTRALIBS)
 	$(RM) afterPulses.o $(OBJS)
 
 undershoot: undershoot.o $(OBJS)
-	$(CXX) $(CPPFLAGS) -o undershoot undershoot.cpp $(OBJS) $(ROOTLIBS)
+	$(CXX) $(CPPFLAGS) -o undershoot undershoot.cc $(OBJS) $(EXTRALIBS)
 	$(RM) undershoot.o $(OBJS)
 
-showSignals: showSignals.o $(OBJS)
-	$(CXX) $(CPPFLAGS) -o showSignals showSignals.cpp $(OBJS) $(ROOTLIBS)
-	$(RM) showSignals.o $(OBJS)
+timing: timing.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o timing timing.cc $(OBJS) $(EXTRALIBS)
+	$(RM) timing.o $(OBJS)
 
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot showSignals
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot showSignals timing
