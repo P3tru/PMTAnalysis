@@ -43,7 +43,7 @@ PMTData::~PMTData() {
   delete treeHeader;
   delete treePMTData;
 
-  for (int iCh = 0; iCh < hGlobal->NumCh; iCh++){
+  for (unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
     delete data[iCh];
     delete hCh[iCh];
 
