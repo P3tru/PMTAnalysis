@@ -2,6 +2,7 @@
 
 A framework to analyse PMTData written in ROOT format, inside a TTree. (cf https://root.cern.ch/)
 The ROOT file is written in a specific structure. The following table describe the structure of the 2 trees holding the DAQ information and the data per channel :
+
 |PMTDataHeader             | PMTData                     |
 |------------------------  |-----------------------------|
 |TBranch* GlobalHeader     |UInt_t DataChXXX[nbSmp]      |
