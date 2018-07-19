@@ -2,7 +2,7 @@
 
 **WARNING** : The software relies on [Boost](https://www.boost.org/) and [ROOT](https://root.cern.ch/) librairies. A compiler with c++11 standard is also required (typical gcc version > 4.4). 
 
-A framework to analyse PMTData written in ROOT format, inside a TTree. (cf https://root.cern.ch/)
+A framework to analyse PMTData written in ROOT format, inside a TTree (cf [ROOT](https://root.cern.ch/)).
 The ROOT file is written in a specific structure. The following table describe the structure of the 2 trees holding the DAQ information and the data per channel :
 
 |PMTDataHeader             | PMTData                     |
@@ -14,7 +14,7 @@ The ROOT file is written in a specific structure. The following table describe t
 The *ChXXX* value correspond to the channel number. 
 
 The software will **only** work using  **ROOT files written in this format**. It can handles the analysis of multiple files at the same time too. It handles also uses of joker * to select the files.
-Have a look at https://github.com/P3tru/QMUL-data-converter in order to write your data in the appropriate format.
+Have a look at [QMUL-data-converter](https://github.com/P3tru/QMUL-data-converter) in order to write your data in the appropriate format.
 
 Classes provided to build analysis software are describe in the following :
 
