@@ -1,5 +1,7 @@
 ﻿# PMTAnalysis
 
+**WARNING** : The software relies on [Boost](https://www.boost.org/) and [ROOT](https://root.cern.ch/) librairies. A compiler with c++11 standard is also required (typical gcc version > 4.4). 
+
 A framework to analyse PMTData written in ROOT format, inside a TTree. (cf https://root.cern.ch/)
 The ROOT file is written in a specific structure. The following table describe the structure of the 2 trees holding the DAQ information and the data per channel :
 
@@ -42,6 +44,6 @@ make PMTAnalysis
 This is an example program plotting the first signal recorded on channel Ch0 on your data.
 ```bash
 make showPlots
-./showPlots /path/to/data1.root /path/to/data2.root ...
+./showPlots /path/to/data.root
 ```
 
