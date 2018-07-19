@@ -57,4 +57,4 @@ timing: timing.o $(OBJS)
 	$(RM) timing.o $(OBJS)
 
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot showSignals timing
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing
