@@ -9,7 +9,9 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1I.h>
+#include <TH1F.h>
+#include <TF1.h>
+
 #include <TGraph.h>
 
 #include <PMTData.hh>
@@ -28,6 +30,8 @@ class PMTAnalyzer {
   int peakPos;
   int tailPos;
 
+  float undershoot;
+
  
  public:
   // Constructor
@@ -36,8 +40,8 @@ class PMTAnalyzer {
   ~PMTAnalyzer();
 
   void CreateMeanSignal();
-  //void findPeak();
-  
+
+  void Undershoot();
   ////////////////////////////////////// //
   // Various accessors and set functions //
   ////////////////////////////////////// //
@@ -46,7 +50,9 @@ class PMTAnalyzer {
 
   int getPeakPos() const {return peakPos;}  
 
-  int getTailPos() const {return tailPos;}  
+  int getTailPos() const {return tailPos;}
+
+  float getUndershoot() const { return undershoot;}
 };
 
 #endif //PMTANALYSIS_PMTANALYZER_HH

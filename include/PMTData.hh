@@ -9,7 +9,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1I.h>
+#include <TH1F.h>
 #include <TGraph.h>
 
 #include <convert.h>
