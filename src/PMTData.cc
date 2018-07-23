@@ -113,7 +113,7 @@ void PMTData::CreateWaveformsHistogram() {
     for(unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
 
       // Create histogram and graph of signal
-      hSignal[iCh][iEntry] = new TH1I(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
+      hSignal[iCh][iEntry] = new TH1F(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
                                       Form("Signal"),
                                       nbSamples[iCh],
                                       0,
@@ -123,7 +123,7 @@ void PMTData::CreateWaveformsHistogram() {
 
       // Fill hist and graph
       for (int i = 0; i < nbSamples[iCh]; i++) {
-        hSignal[iCh][iEntry]->SetBinContent(i + 1, data[iCh][i]);
+        hSignal[iCh][iEntry]->SetBinContent(i + 1, -adc2V(data[iCh][i]));
       }
 
     } // END for iCh
@@ -137,3 +137,4 @@ void PMTData::CreateWaveformsHistogram() {
   } // END for iEntry
 
 }
+

@@ -29,7 +29,7 @@ PMTAnalyzer::~PMTAnalyzer(){
 
 void PMTAnalyzer::CreateMeanSignal(){
   for(int iCh = 0; iCh < data->getNbCh(); iCh++){
-    meanSignal[iCh] = new TH1I(Form("meanSignal_%s_Ch%d", data->getFileName(), iCh),
+    meanSignal[iCh] = new TH1F(Form("meanSignal_%s_Ch%d", data->getFileName(), iCh),
 			       Form("MeanSignal"),
 			       data->getNbSamples(iCh),
 			       0,

@@ -47,7 +47,7 @@ class PMTData {
   float voltConv;
 
   // Histograms of raw signal recorded by DAQ
-  std::vector<TH1I*> hSignal[MAXNUMCH];
+  std::vector<TH1F*> hSignal[MAXNUMCH];
 
   // TGraph of raw signal recorded by DAQ
   std::vector<TGraph*> gSignal[MAXNUMCH];
@@ -78,6 +78,8 @@ class PMTData {
 
   void setGND(int GND){ PMTData::GND = GND; }
   int getGND() const { return GND; }
+
+  float adc2V(UInt_t adc){ return ((int)adc-GND)*voltConv;};
 
   TH1* getSignalHistogram(int iCh, int iEntry) { return hSignal[iCh][iEntry];}
 
