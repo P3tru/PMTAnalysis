@@ -2,6 +2,7 @@
 #include <TApplication.h>
 
 #include <PMTData.hh>
+#include <PMTAnalyzer.hh>
 
 #define MAXNUMFILES 10000 // MAX nb of files processed
 
@@ -36,6 +37,8 @@ int main(int argc, char *argv[]) {
 
   PMTData *data[MAXNUMFILES];
 
+  PMTAnalyzer *analysis[MAXNUMFILES];
+
   // INSERT FUNCTIONS BELOW
   /////////////////////////
 
@@ -44,7 +47,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Processing file " << sources[iFile] << std::endl;
     data[iFile] = new PMTData(sources[iFile]);
 
-  }
+    analysis[iFile] = new PMTAnalyzer(data[iFile]);
+
+    analysis[iFile]->getMeanSignal(0)->Draw();
+  }// end iFile
 
   /////////////////////////
   // ...
