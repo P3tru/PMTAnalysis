@@ -24,8 +24,9 @@ class PMTAnalyzer {
   // Histograms of mean signal
   TH1F* meanSignal[MAXNUMCH];
 
-  // Position of the peak in the mean signal (extremum in 4ns unit)
+  // Positions of the peak and tail in the mean signal (extremum in 4ns unit)
   int peakPos;
+  int tailPos;
 
  
  public:
@@ -44,6 +45,8 @@ class PMTAnalyzer {
   TH1F* getMeanSignal(int iCh){return meanSignal[iCh];}
 
   int getPeakPos() const {return peakPos;}  
+
+  int getTailPos() const {return tailPos;}  
 };
 
 #endif //PMTANALYSIS_PMTANALYZER_HH
