@@ -73,6 +73,7 @@ bool PMTData::OpenPMTDataTTree(){
     treeHeader->GetEntry(0);
 
     nbCh = hGlobal->NumCh;
+    tStep = hGlobal->TimeStep*1e9; // in ns
 
     for(int iCh = 0; iCh < nbCh; iCh++){
 
@@ -116,10 +117,10 @@ void PMTData::CreateWaveformsHistogram() {
       hSignal[iCh][iEntry] = new TH1F(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
                                       Form("Signal"),
                                       nbSamples[iCh],
-                                      0,
-                                      nbSamples[iCh]);
-      hSignal[iCh][iEntry]->GetXaxis()->SetTitle("Time (4ns)");
-      hSignal[iCh][iEntry]->GetYaxis()->SetTitle("ADC Channel");
+                                      -tStep/2,
+                                      (nbSamples[iCh]-1)*tStep + tStep/2);
+      hSignal[iCh][iEntry]->GetXaxis()->SetTitle("Time (ns)");
+      hSignal[iCh][iEntry]->GetYaxis()->SetTitle("Volts");
 
       // Fill hist and graph
       for (int i = 0; i < nbSamples[iCh]; i++) {

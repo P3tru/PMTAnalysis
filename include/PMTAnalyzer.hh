@@ -27,8 +27,8 @@ class PMTAnalyzer {
   TH1F* meanSignal[MAXNUMCH];
 
   // Positions of the peak and tail in the mean signal (extremum in 4ns unit)
-  int peakPos;
-  int tailPos;
+  float peakPos;
+  float tailPos;
 
   float undershoot;
 
@@ -48,9 +48,9 @@ class PMTAnalyzer {
 
   TH1F* getMeanSignal(int iCh){return meanSignal[iCh];}
 
-  int getPeakPos() const {return peakPos;}  
+  float getPeakPos() const {return peakPos;}  
 
-  int getTailPos() const {return tailPos;}
+  float getTailPos() const {return tailPos;}
 
   float getUndershoot() const { return undershoot;}
 };

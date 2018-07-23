@@ -41,6 +41,8 @@ class PMTData {
 
   int nbCh;
 
+  double tStep;
+
   // DAQ Ground base value;
   int GND;
   // ADC Channel to volst conversion rate 
@@ -78,6 +80,8 @@ class PMTData {
 
   void setGND(int GND){ PMTData::GND = GND; }
   int getGND() const { return GND; }
+
+  double getTimeStep() const { return tStep;}
 
   float adc2V(UInt_t adc){ return ((int)adc-GND)*voltConv;};
 

@@ -30,26 +30,27 @@ PMTAnalyzer::~PMTAnalyzer(){
 
 void PMTAnalyzer::CreateMeanSignal(){
   for(int iCh = 0; iCh < data->getNbCh(); iCh++){
+    double tStep = data->getTimeStep();
     meanSignal[iCh] = new TH1F(Form("meanSignal_%s_Ch%d", data->getFileName(), iCh),
 			       Form("MeanSignal"),
 			       data->getNbSamples(iCh),
-			       0,
-			       data->getNbSamples(iCh));
-    meanSignal[iCh]->SetXTitle("Time 4ns");
-    meanSignal[iCh]->SetYTitle("ADC Channel");
+			       -tStep/2,
+			       (data->getNbSamples(iCh)-1)*tStep + tStep/2);
+    meanSignal[iCh]->SetXTitle("Time (ns)");
+    meanSignal[iCh]->SetYTitle("Volts");
     
     for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
       meanSignal[iCh]->Add(data->getSignalHistogram(iCh, iEntry));
     }// end iEntry
     meanSignal[iCh]->Scale((float)1/data->getNbEntries());
-    peakPos = meanSignal[iCh]->GetMaximumBin();
-    tailPos = meanSignal[iCh]->GetMinimumBin();
+    peakPos = (meanSignal[iCh]->GetMaximumBin()-1)*tStep;
+    tailPos = (meanSignal[iCh]->GetMinimumBin()-1)*tStep;
     
   }// end iCh
 }
 
 void PMTAnalyzer::Undershoot(){
-  TF1* f = new TF1("f", "[0]*(1-exp(-(x-[1])/[2]))", tailPos, 1000);
+  TF1* f = new TF1("f", "[0]*(1-exp(-(x-[1])/[2]))", tailPos, 2000);
   f->SetParNames("const",
 		 "t0",
 		 "tau");  
@@ -59,7 +60,7 @@ void PMTAnalyzer::Undershoot(){
 
   meanSignal[0]->Fit("f", "R");
 
-  undershoot = f->GetParameter(2)*4;
+  undershoot = f->GetParameter(2);
 
 }
 
