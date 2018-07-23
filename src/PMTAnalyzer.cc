@@ -41,6 +41,9 @@ void PMTAnalyzer::CreateMeanSignal(){
       meanSignal[iCh]->Add(data->getSignalHistogram(iCh, iEntry));
     }// end iEntry
     meanSignal[iCh]->Scale((float)1/data->getNbEntries());
+    peakPos = meanSignal[iCh]->GetMaximumBin();
+    tailPos = meanSignal[iCh]->GetMinimumBin();
+    
   }// end iCh
 }
 

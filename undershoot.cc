@@ -50,6 +50,10 @@ int main(int argc, char *argv[]) {
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
 
     analysis[iFile]->getMeanSignal(0)->Draw();
+
+    std::cout << "peakpos = " << analysis[iFile]->getPeakPos() << std::endl;
+    std::cout << "tailpos = " << analysis[iFile]->getTailPos() << std::endl;
+    
   }// end iFile
 
   /////////////////////////
