@@ -13,7 +13,6 @@ PMTAnalyzer::PMTAnalyzer(PMTData* inputdata){
   if(data == NULL){std::cout << "PMTData empty" << std::endl;}
   else{
     CreateMeanSignal();
-    Undershoot();
   }
   
 }
@@ -49,7 +48,7 @@ void PMTAnalyzer::CreateMeanSignal(){
   }// end iCh
 }
 
-void PMTAnalyzer::Undershoot(){
+void PMTAnalyzer::ComputeUndershoot(){
   TF1* f = new TF1("f", "[0]*(1-exp(-(x-[1])/[2]))", tailPos, 2000);
   f->SetParNames("const",
 		 "t0",

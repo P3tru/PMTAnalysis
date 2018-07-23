@@ -30,7 +30,7 @@ class PMTAnalyzer {
   float peakPos;
   float tailPos;
 
-  float undershoot;
+  float undershoot = 0;
 
  
  public:
@@ -41,7 +41,7 @@ class PMTAnalyzer {
 
   void CreateMeanSignal();
 
-  void Undershoot();
+  void ComputeUndershoot();
   ////////////////////////////////////// //
   // Various accessors and set functions //
   ////////////////////////////////////// //
