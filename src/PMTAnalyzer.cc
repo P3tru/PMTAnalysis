@@ -24,6 +24,7 @@ PMTAnalyzer::~PMTAnalyzer(){
     delete meanSignal[iCh];
   }
   delete PEdistribution;
+  delete fitFunction;
   delete data;
 };
 
@@ -86,7 +87,37 @@ void PMTAnalyzer::CreatePEdistribution(){
 				 100,
 				 minCharge,
 				 maxCharge);
+  PEdistribution->SetXTitle("Charge (V*ns)");
+  PEdistribution->SetYTitle("Number of entries");
+  
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
     PEdistribution->Fill(charges[iEntry]);
   } 			    
+}
+
+void PMTAnalyzer::ComputeFit(int nbPE){
+  fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fir defined in functions.cc
+  Double_t w = 0.3;
+  Double_t Q0 = PEdistribution->GetMean();
+  Double_t sigma0 = PEdistribution->GetStdDev();
+  Double_t alpha = 1/maxCharge;
+  Double_t mu = 0.5;
+  Double_t Q1 = PEdistribution->GetStdDev();
+  Double_t sigma1 = PEdistribution->GetStdDev();
+  
+  fitFunction->SetParNames("N", "Const", "w", "Q0", "sigma0", "alpha", "mu", "Q1", "sigma1");
+  fitFunction->SetParameters(nbPE, data->getNbEntries(), w, Q0, sigma0, alpha, mu, Q1, sigma1);
+  // Fixing the number of PE
+  fitFunction->FixParameter(0, nbPE);
+  // Avoiding negative parameters
+  fitFunction->SetParLimits(1, 0, 100000);
+  fitFunction->SetParLimits(2, 0, 1);
+  fitFunction->SetParLimits(3, 0, 10000);
+  fitFunction->SetParLimits(4, 0, 10000);
+  fitFunction->SetParLimits(5, 0, 10000);
+  fitFunction->SetParLimits(6, 0, 10000);
+  fitFunction->SetParLimits(7, 0, 10000);
+  fitFunction->SetParLimits(8, 0, 10000);
+ 
+  PEdistribution->Fit("fitFunction", "R");
 }
