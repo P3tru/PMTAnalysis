@@ -100,7 +100,7 @@ void PMTAnalyzer::ComputeFit(int nbPE){
   Double_t w = 0.1;
   Double_t Q0 = PEdistribution->GetMean();
   Double_t sigma0 = PEdistribution->GetStdDev()/2;
-  Double_t alpha = 1/(5e-3*maxCharge);
+  Double_t alpha = 1/(1e-2*maxCharge);
   Double_t mu = 0.01;
   Double_t Q1 = PEdistribution->GetStdDev()/2;
   Double_t sigma1 = PEdistribution->GetStdDev()/2;
