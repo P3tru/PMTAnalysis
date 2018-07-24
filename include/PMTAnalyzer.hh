@@ -17,6 +17,7 @@
 #include <PMTData.hh>
 
 #define MAXNUMCH 32 // Max nb of channels expected from DAQ
+#define MAXNUMENTRIES 100000
 
 class PMTAnalyzer {
  protected:
@@ -25,6 +26,8 @@ class PMTAnalyzer {
 
   // Histograms of mean signal
   TH1F* meanSignal[MAXNUMCH];
+  // Histogram of PE distribution
+  TH1F* PEdistribution;
 
   // Positions of the peak and tail in the mean signal (extremum in 4ns unit)
   float peakPos;
@@ -32,6 +35,10 @@ class PMTAnalyzer {
 
   float undershoot = 0;
 
+  // Charge of peaks
+  float charges[MAXNUMENTRIES];
+  float maxCharge;
+  float minCharge;
  
  public:
   // Constructor
@@ -40,8 +47,10 @@ class PMTAnalyzer {
   ~PMTAnalyzer();
 
   void CreateMeanSignal();
-
   void ComputeUndershoot();
+  void ComputeIntegral();
+  void CreatePEdistribution();
+  
   ////////////////////////////////////// //
   // Various accessors and set functions //
   ////////////////////////////////////// //
@@ -53,6 +62,10 @@ class PMTAnalyzer {
   float getTailPos() const {return tailPos;}
 
   float getUndershoot() const { return undershoot;}
+
+  float getCharge(int iEntry){ return charges[iEntry];}
+  
+  TH1F* getPEdistribution(){ return PEdistribution;}
 };
 
 #endif //PMTANALYSIS_PMTANALYZER_HH

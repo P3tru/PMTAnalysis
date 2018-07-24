@@ -23,6 +23,7 @@ PMTAnalyzer::~PMTAnalyzer(){
   for(int iCh; iCh < data->getNbCh(); iCh++){
     delete meanSignal[iCh];
   }
+  delete PEdistribution;
   delete data;
 };
 
@@ -63,3 +64,29 @@ void PMTAnalyzer::ComputeUndershoot(){
 
 }
 
+void PMTAnalyzer::ComputeIntegral(){
+  int signalCh = data->getSignalCh();
+  maxCharge = 0;
+  minCharge = 10000;
+  for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
+    charges[iEntry] = data->getSignalHistogram(signalCh, iEntry)->Integral(peakPos-data->nSize/2,
+									   peakPos+data->nSize/2,
+									   "width");
+    //std::cout << "integral = " << charges[iEntry] << std::endl;
+    if(charges[iEntry] > maxCharge) maxCharge = charges[iEntry];
+    if(charges[iEntry] < minCharge) minCharge = charges[iEntry];
+    
+  }
+}
+
+void PMTAnalyzer::CreatePEdistribution(){
+  ComputeIntegral();
+  PEdistribution = new TH1F(Form("PEdistribution_%s", data->getFileName()),
+				 Form("PE peak"),
+				 100,
+				 minCharge,
+				 maxCharge);
+  for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
+    PEdistribution->Fill(charges[iEntry]);
+  } 			    
+}

@@ -40,6 +40,8 @@ class PMTData {
   int nbSamples[MAXNUMCH];
 
   int nbCh;
+  // Index of the channel containing the relevant data
+  int signalCh;
 
   double tStep;
 
@@ -80,6 +82,9 @@ class PMTData {
 
   void setGND(int GND){ PMTData::GND = GND; }
   int getGND() const { return GND; }
+
+  void setSignalCh(int signalCh){ PMTData::signalCh = signalCh;}
+  int getSignalCh() const {return signalCh;}
 
   double getTimeStep() const { return tStep;}
 

@@ -20,6 +20,7 @@ PMTData::PMTData(std::string inputUserArg) {
   GND = 8225;
   voltConv = 2.06/5000.0;
   nbEntries=0;
+  signalCh = 0;
 
   if(OpenPMTDataTTree()){
     std::cout << "Tree open successfully" << std::endl;
@@ -89,7 +90,7 @@ bool PMTData::OpenPMTDataTTree(){
       hSignal[iCh].reserve(static_cast<unsigned long>(treePMTData->GetEntries()));
     }
 
-    nbEntries = treePMTData->GetEntries();
+    nbEntries = treePMTData->GetEntries()-1;
     return nbEntries > 0;
 
   } else {

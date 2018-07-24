@@ -56,5 +56,8 @@ timing: timing.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o timing timing.cc $(OBJS) $(EXTRALIBS)
 	$(RM) timing.o $(OBJS)
 
+fit: fit.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o fit fit.cc $(OBJS) $(EXTRALIBS)
+	$(RM) fit.o $(OBJS)
 clean:
 	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing
