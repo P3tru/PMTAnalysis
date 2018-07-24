@@ -60,4 +60,4 @@ fit: fit.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o fit fit.cc $(OBJS) $(EXTRALIBS)
 	$(RM) fit.o $(OBJS)
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit
