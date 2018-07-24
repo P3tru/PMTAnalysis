@@ -54,6 +54,7 @@ class PMTAnalyzer {
   void ComputeIntegral();
   void CreatePEdistribution();
   void ComputeFit(int nbPE);
+  void DisplayFitParts();
   
   ////////////////////////////////////// //
   // Various accessors and set functions //

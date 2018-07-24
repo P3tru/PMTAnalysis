@@ -81,7 +81,7 @@ Double_t BG(Double_t* x, Double_t* par){
   Double_t N = par[0], Const = par[1], w = par[2], Q0 = par[3], sigma0 = par[4], alpha = par[5], X = x[0];
   Double_t mu = par[6], Q1 = par[7], sigma1 = par[8], r2pi = TMath::Sqrt(2*TMath::Pi()), Qsh = w/alpha, e_mu = TMath::Exp(-mu);
 
-  return Const*(1-w)/(sigma0*r2pi)*TMath::Exp(-(X-Q0)*(X-Q0)/(2*sigma0*sigma0));
+  return Const*(1-w)/(sigma0*r2pi)*TMath::Exp(-(X-Q0)*(X-Q0)/(2*sigma0*sigma0))*e_mu;
 }
 Double_t EXP(Double_t* x, Double_t* par){
   Double_t N = par[0], Const = par[1], w = par[2], Q0 = par[3], sigma0 = par[4], alpha = par[5], X = x[0], theta = 0;
@@ -89,11 +89,11 @@ Double_t EXP(Double_t* x, Double_t* par){
   if(X-Q0 < 0) theta = 0;
   else theta = 1;
 
-  return w*theta*alpha*TMath::Exp(-alpha*(X-Q0))*e_mu;
+  return Const*w*theta*alpha*TMath::Exp(-alpha*(X-Q0))*e_mu;
 }
 Double_t SPE(Double_t* x, Double_t* par){
   Double_t N = par[0], Const = par[1], w = par[2], Q0 = par[3], sigma0 = par[4], alpha = par[5], X = x[0];
   Double_t mu = par[6], Q1 = par[7], sigma1 = par[8], r2pi = TMath::Sqrt(2*TMath::Pi()), Qsh = w/alpha, e_mu = TMath::Exp(-mu);
 
-  return TMath::Power(mu, N)*e_mu/TMath::Factorial(N)/(sigma1*r2pi*TMath::Sqrt(N))*TMath::Exp(-TMath::Power(X-Q0-Qsh-N*Q1, 2)/(2*N*sigma1*sigma1));
+  return Const*TMath::Power(mu, N)*e_mu/TMath::Factorial(N)/(sigma1*r2pi*TMath::Sqrt(N))*TMath::Exp(-TMath::Power(X-Q0-Qsh-N*Q1, 2)/(2*N*sigma1*sigma1));
 }

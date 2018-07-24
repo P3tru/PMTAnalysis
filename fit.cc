@@ -37,8 +37,9 @@ int main(int argc, char *argv[]) {
     data[iFile] = new PMTData(sources[iFile]);
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
     analysis[iFile]->CreatePEdistribution();
-    //analysis[iFile]->getPEdistribution()->Draw();
     analysis[iFile]->ComputeFit(3);
+    analysis[iFile]->DisplayFitParts();
+    analysis[iFile]->getPEdistribution()->Draw();
   }
   
 

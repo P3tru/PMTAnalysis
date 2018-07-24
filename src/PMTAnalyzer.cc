@@ -59,7 +59,7 @@ void PMTAnalyzer::ComputeUndershoot(){
 		   0,
 		   25);
 
-  meanSignal[0]->Fit("f", "R");
+  meanSignal[data->getSignalCh()]->Fit("f", "R");
 
   undershoot = f->GetParameter(2);
 
@@ -97,13 +97,13 @@ void PMTAnalyzer::CreatePEdistribution(){
 
 void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fir defined in functions.cc
-  Double_t w = 0.3;
+  Double_t w = 0.1;
   Double_t Q0 = PEdistribution->GetMean();
-  Double_t sigma0 = PEdistribution->GetStdDev();
-  Double_t alpha = 1/maxCharge;
-  Double_t mu = 0.5;
-  Double_t Q1 = PEdistribution->GetStdDev();
-  Double_t sigma1 = PEdistribution->GetStdDev();
+  Double_t sigma0 = PEdistribution->GetStdDev()/2;
+  Double_t alpha = 1/(5e-3*maxCharge);
+  Double_t mu = 0.01;
+  Double_t Q1 = PEdistribution->GetStdDev()/2;
+  Double_t sigma1 = PEdistribution->GetStdDev()/2;
   
   fitFunction->SetParNames("N", "Const", "w", "Q0", "sigma0", "alpha", "mu", "Q1", "sigma1");
   fitFunction->SetParameters(nbPE, data->getNbEntries(), w, Q0, sigma0, alpha, mu, Q1, sigma1);
@@ -119,5 +119,36 @@ void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction->SetParLimits(7, 0, 10000);
   fitFunction->SetParLimits(8, 0, 10000);
  
-  PEdistribution->Fit("fitFunction", "R");
+  PEdistribution->Fit("fitFunction", "RW");
+}
+
+void PMTAnalyzer::DisplayFitParts(){
+  TF1* bg = new TF1("bg", BG, minCharge, maxCharge, 9);
+  TF1* exp = new TF1("exp", EXP, minCharge, maxCharge, 9);
+
+  int N = fitFunction->GetParameter(0);
+  TF1* spe[N];
+  Double_t Const = fitFunction->GetParameter(1);
+  Double_t w = fitFunction->GetParameter(2);
+  Double_t Q0 = fitFunction->GetParameter(3);
+  Double_t sigma0 = fitFunction->GetParameter(4);
+  Double_t alpha = fitFunction->GetParameter(5);
+  Double_t mu = fitFunction->GetParameter(6);
+  Double_t Q1 = fitFunction->GetParameter(7);
+  Double_t sigma1 = fitFunction->GetParameter(8);
+  
+  bg->SetParameters(N, Const, w, Q0, sigma0, alpha, mu, Q1, sigma1);
+  bg->SetLineColor(3); //green
+  PEdistribution->GetListOfFunctions()->Add(bg);
+
+  exp->SetParameters(N, Const, w, Q0, sigma0, alpha, mu, Q1, sigma1);
+  exp->SetLineColor(4); //blue
+  PEdistribution->GetListOfFunctions()->Add(exp);
+
+  for(int n = 0; n < N; n++){
+    spe[n] = new TF1(Form("spe%d", n+1), SPE, minCharge, maxCharge, 9);
+    spe[n]->SetParameters(n+1, Const, w, Q0, sigma0, alpha, mu, Q1, sigma1);
+    spe[n]->SetLineColor(n+5); //yellow, pink, clear bkue, green, ...    
+    PEdistribution->GetListOfFunctions()->Add(spe[n]);
+  }
 }
