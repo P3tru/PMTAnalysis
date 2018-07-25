@@ -17,8 +17,6 @@ PMTData::PMTData(std::string inputUserArg) {
 
   dataFileName = p.stem().string();
 
-  GND = 8225;
-  voltConv = 2.06/5000.0;
   nbEntries=0;
   signalCh = 0;
 
@@ -72,6 +70,20 @@ bool PMTData::OpenPMTDataTTree(){
     // Assign structure to header branch
     treeHeader->SetBranchAddress("GlobalHeader",hGlobal);
     treeHeader->GetEntry(0);
+
+    // Defining the parameters for conversion from adc to volts
+    if(!strcmp(hGlobal->InstID, "VMESIS6136")){
+      GND = 8225;
+      voltConv = 2.06/5000.0;
+    }
+    else{
+      GND = 216;
+      voltConv = 1.0; // Already in volts for the data of Marcin
+    }
+    std::cout << "InstID : " << hGlobal->InstID  << std::endl;
+    std::cout << "GND and voltConv :" << std::endl;
+    std::cout << GND << std::endl;
+    std::cout << voltConv << std::endl;
 
     nbCh = hGlobal->NumCh;
     tStep = hGlobal->TimeStep*1e9; // in ns

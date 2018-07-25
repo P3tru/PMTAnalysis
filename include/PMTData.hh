@@ -6,6 +6,7 @@
 #define PMTANALYSIS_PMTDATA_H
 
 #include <fstream>
+#include <string.h>
 
 #include <TFile.h>
 #include <TTree.h>

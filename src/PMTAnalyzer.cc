@@ -44,14 +44,15 @@ void PMTAnalyzer::CreateMeanSignal(){
       meanSignal[iCh]->Add(data->getSignalHistogram(iCh, iEntry));
     }// end iEntry
     meanSignal[iCh]->Scale((float)1/data->getNbEntries());
-    peakPos = (meanSignal[iCh]->GetMaximumBin()-1)*tStep;
-    tailPos = (meanSignal[iCh]->GetMinimumBin()-1)*tStep;
+    peakPos[iCh] = (meanSignal[iCh]->GetMaximumBin()-1)*tStep;
+    tailPos[iCh] = (meanSignal[iCh]->GetMinimumBin()-1)*tStep;
+    std::cout << "peakPos" << iCh << " = " << peakPos[iCh] << std::endl;
     
   }// end iCh
 }
 
 void PMTAnalyzer::ComputeUndershoot(){
-  TF1* f = new TF1("f", "[0]*(1-exp(-(x-[1])/[2]))", tailPos, 2000);
+  TF1* f = new TF1("f", "[0]*(1-exp(-(x-[1])/[2]))", tailPos[data->getSignalCh()], 2000);
   f->SetParNames("const",
 		 "t0",
 		 "tau");  
@@ -68,20 +69,40 @@ void PMTAnalyzer::ComputeUndershoot(){
 void PMTAnalyzer::ComputeIntegral(){
   int signalCh = data->getSignalCh();
   maxCharge = 0;
-  minCharge = 10000;
+  minCharge = 1000000;
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
-    charges[iEntry] = data->getSignalHistogram(signalCh, iEntry)->Integral(peakPos-data->nSize/2,
-									   peakPos+data->nSize/2,
+    charges[iEntry] = data->getSignalHistogram(signalCh, iEntry)->Integral(peakPos[signalCh]-data->nSize/2,
+									   peakPos[signalCh]+data->nSize,
 									   "width");
-    //std::cout << "integral = " << charges[iEntry] << std::endl;
+    if(charges[iEntry] > 50){
+      std::cout << "iEntry = " << iEntry << std::endl;      
+      std::cout << "integral = " << charges[iEntry] << std::endl;
+    }
     if(charges[iEntry] > maxCharge) maxCharge = charges[iEntry];
     if(charges[iEntry] < minCharge) minCharge = charges[iEntry];
     
   }
+  std::cout << "min = " << minCharge << std::endl;
+  std::cout << "max = " << maxCharge << std::endl;
 }
 
 void PMTAnalyzer::CreatePEdistribution(){
+  float mean;
+  float sigma;
   ComputeIntegral();
+  PEdistribution = new TH1F(Form("PEdistribution_%s", data->getFileName()),
+				 Form("PE peak"),
+				 100,
+				 minCharge,
+				 maxCharge);
+  for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
+    PEdistribution->Fill(charges[iEntry]);
+  }
+  
+  mean = PEdistribution->GetMean();
+  sigma = PEdistribution->GetStdDev();
+  minCharge = mean - 2*sigma;
+  maxCharge = mean + 3*sigma;
   PEdistribution = new TH1F(Form("PEdistribution_%s", data->getFileName()),
 				 Form("PE peak"),
 				 100,
@@ -89,20 +110,19 @@ void PMTAnalyzer::CreatePEdistribution(){
 				 maxCharge);
   PEdistribution->SetXTitle("Charge (V*ns)");
   PEdistribution->SetYTitle("Number of entries");
-  
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
     PEdistribution->Fill(charges[iEntry]);
-  } 			    
+  }
 }
 
 void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fir defined in functions.cc
-  Double_t w = 0.1;
+  Double_t w = 0.05;
   Double_t Q0 = PEdistribution->GetMean();
   Double_t sigma0 = PEdistribution->GetStdDev()/2;
   Double_t alpha = 1/(1e-2*maxCharge);
   Double_t mu = 0.01;
-  Double_t Q1 = PEdistribution->GetStdDev()/2;
+  Double_t Q1 = PEdistribution->GetStdDev();
   Double_t sigma1 = PEdistribution->GetStdDev()/2;
   
   fitFunction->SetParNames("N", "Const", "w", "Q0", "sigma0", "alpha", "mu", "Q1", "sigma1");
@@ -115,7 +135,7 @@ void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction->SetParLimits(3, 0, 10000);
   fitFunction->SetParLimits(4, 0, 10000);
   fitFunction->SetParLimits(5, 0, 10000);
-  fitFunction->SetParLimits(6, 0, 10000);
+  fitFunction->SetParLimits(6, 0, 1);
   fitFunction->SetParLimits(7, 0, 10000);
   fitFunction->SetParLimits(8, 0, 10000);
  
@@ -148,7 +168,7 @@ void PMTAnalyzer::DisplayFitParts(){
   for(int n = 0; n < N; n++){
     spe[n] = new TF1(Form("spe%d", n+1), SPE, minCharge, maxCharge, 9);
     spe[n]->SetParameters(n+1, Const, w, Q0, sigma0, alpha, mu, Q1, sigma1);
-    spe[n]->SetLineColor(n+5); //yellow, pink, clear bkue, green, ...    
+    spe[n]->SetLineColor(n+5); //yellow, pink, clear blue, green, ...    
     PEdistribution->GetListOfFunctions()->Add(spe[n]);
   }
 }

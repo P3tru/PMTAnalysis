@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     analysis[iFile]->ComputeUndershoot();
     analysis[iFile]->getMeanSignal(0)->Draw("l");
 
-    std::cout << "tailpos = " << analysis[iFile]->getTailPos() << std::endl;
+    std::cout << "tailpos = " << analysis[iFile]->getTailPos(0) << std::endl;
     std::cout << "undershoot = " << analysis[iFile]->getUndershoot() << " ns" << std::endl;
     
     
