@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
    * 3/ histogram the difference between the 2 for each signals
   */
 
-      // Nb files processed
+  // Nb files processed
   int nFiles = 0;
 
   // Create TApp

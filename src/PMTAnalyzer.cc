@@ -26,8 +26,7 @@ PMTAnalyzer::~PMTAnalyzer(){
   delete PEdistribution;
   delete fitFunction;
   delete data;
-};
-
+}
 
 void PMTAnalyzer::CreateMeanSignal(){
   for(int iCh = 0; iCh < data->getNbCh(); iCh++){
@@ -45,9 +44,7 @@ void PMTAnalyzer::CreateMeanSignal(){
     }// end iEntry
     meanSignal[iCh]->Scale((float)1/data->getNbEntries());
     peakPos[iCh] = (meanSignal[iCh]->GetMaximumBin()-1)*tStep;
-    tailPos[iCh] = (meanSignal[iCh]->GetMinimumBin()-1)*tStep;
-    std::cout << "peakPos" << iCh << " = " << peakPos[iCh] << std::endl;
-    
+    tailPos[iCh] = (meanSignal[iCh]->GetMinimumBin()-1)*tStep;    
   }// end iCh
 }
 
@@ -68,22 +65,17 @@ void PMTAnalyzer::ComputeUndershoot(){
 
 void PMTAnalyzer::ComputeIntegral(){
   int signalCh = data->getSignalCh();
-  maxCharge = 0;
-  minCharge = 1000000;
+  maxCharge = -10000;
+  minCharge = 10000;
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
-    charges[iEntry] = data->getSignalHistogram(signalCh, iEntry)->Integral(peakPos[signalCh]-data->nSize/2,
-									   peakPos[signalCh]+data->nSize,
+    charges[iEntry] = data->getSignalHistogram(signalCh, iEntry)->Integral(peakPos[signalCh]-data->nTot/2,
+									   peakPos[signalCh]+data->nTot,
 									   "width");
-    if(charges[iEntry] > 50){
-      std::cout << "iEntry = " << iEntry << std::endl;      
-      std::cout << "integral = " << charges[iEntry] << std::endl;
-    }
+   
     if(charges[iEntry] > maxCharge) maxCharge = charges[iEntry];
     if(charges[iEntry] < minCharge) minCharge = charges[iEntry];
     
   }
-  std::cout << "min = " << minCharge << std::endl;
-  std::cout << "max = " << maxCharge << std::endl;
 }
 
 void PMTAnalyzer::CreatePEdistribution(){
@@ -98,11 +90,12 @@ void PMTAnalyzer::CreatePEdistribution(){
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
     PEdistribution->Fill(charges[iEntry]);
   }
-  
+  /*// Redefining histogram and functions limits
   mean = PEdistribution->GetMean();
   sigma = PEdistribution->GetStdDev();
-  minCharge = mean - 2*sigma;
-  maxCharge = mean + 3*sigma;
+  PEdistribution->~TH1();
+  minCharge = mean - 3*sigma;
+  maxCharge = mean + 4*sigma;
   PEdistribution = new TH1F(Form("PEdistribution_%s", data->getFileName()),
 				 Form("PE peak"),
 				 100,
@@ -112,18 +105,18 @@ void PMTAnalyzer::CreatePEdistribution(){
   PEdistribution->SetYTitle("Number of entries");
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
     PEdistribution->Fill(charges[iEntry]);
-  }
+    }*/
 }
 
 void PMTAnalyzer::ComputeFit(int nbPE){
-  fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fir defined in functions.cc
+  fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fit defined in functions.cc
   Double_t w = 0.05;
-  Double_t Q0 = PEdistribution->GetMean();
-  Double_t sigma0 = PEdistribution->GetStdDev()/2;
-  Double_t alpha = 1/(1e-2*maxCharge);
-  Double_t mu = 0.01;
-  Double_t Q1 = PEdistribution->GetStdDev();
-  Double_t sigma1 = PEdistribution->GetStdDev()/2;
+  Double_t Q0 = PEdistribution->GetMean()*0.7;
+  Double_t sigma0 = PEdistribution->GetStdDev()*0.7;
+  Double_t alpha = 1/(0.1*PEdistribution->GetStdDev());
+  Double_t mu = 1;
+  Double_t Q1 = PEdistribution->GetStdDev()*0.7;
+  Double_t sigma1 = PEdistribution->GetStdDev()*0.7;
   
   fitFunction->SetParNames("N", "Const", "w", "Q0", "sigma0", "alpha", "mu", "Q1", "sigma1");
   fitFunction->SetParameters(nbPE, data->getNbEntries(), w, Q0, sigma0, alpha, mu, Q1, sigma1);
@@ -135,7 +128,7 @@ void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction->SetParLimits(3, 0, 10000);
   fitFunction->SetParLimits(4, 0, 10000);
   fitFunction->SetParLimits(5, 0, 10000);
-  fitFunction->SetParLimits(6, 0, 1);
+  fitFunction->SetParLimits(6, 0, 10000);
   fitFunction->SetParLimits(7, 0, 10000);
   fitFunction->SetParLimits(8, 0, 10000);
  

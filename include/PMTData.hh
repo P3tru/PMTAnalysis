@@ -47,7 +47,7 @@ class PMTData {
   double tStep;
 
   // DAQ Ground base value;
-  int GND;
+  double GND;
   // ADC Channel to volst conversion rate 
   float voltConv;
 
@@ -64,6 +64,7 @@ class PMTData {
   // Destructor
   ~PMTData();
 
+  void ComputeGND();
   bool OpenPMTDataTTree();
   void CreateWaveformsHistogram();
   void WriteOutputFile() { outputFile->Write(); } ;
@@ -81,7 +82,7 @@ class PMTData {
   void setNbCh(int nbCh){ PMTData::nbCh = nbCh; }
   int getNbCh() const { return nbCh; }
 
-  void setGND(int GND){ PMTData::GND = GND; }
+  void setGND(float GND){ PMTData::GND = GND; }
   int getGND() const { return GND; }
 
   void setSignalCh(int signalCh){ PMTData::signalCh = signalCh;}
@@ -89,7 +90,7 @@ class PMTData {
 
   double getTimeStep() const { return tStep;}
 
-  float adc2V(UInt_t adc){ return ((int)adc-GND)*voltConv;};
+  float adc2V(UInt_t adc){ return ((float)adc-GND)*voltConv;};
 
   TH1* getSignalHistogram(int iCh, int iEntry) { return hSignal[iCh][iEntry];}
 

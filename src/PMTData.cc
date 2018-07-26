@@ -23,6 +23,10 @@ PMTData::PMTData(std::string inputUserArg) {
   if(OpenPMTDataTTree()){
     std::cout << "Tree open successfully" << std::endl;
     CreateWaveformsHistogram();
+    std::cout << "GND and voltConv :" << std::endl;
+    std::cout << GND << std::endl;
+    std::cout << voltConv << std::endl;
+    
   }
 
   std::string str;
@@ -58,6 +62,19 @@ PMTData::~PMTData() {
   delete hGlobal;
 }
 
+void PMTData::ComputeGND(){
+  int sizeSubset = 0;
+  unsigned int sum = 0;
+  for(int iEntry = 0; iEntry < nbEntries; iEntry++){
+    treePMTData->GetEntry(iEntry);
+    for(int iSamp = (int)0.7*nbSamples[signalCh]; iSamp < nbSamples[signalCh]; iSamp++){
+      sum += data[signalCh][iSamp];
+      sizeSubset++;
+    }
+  }
+  GND = (float)sum/(float)sizeSubset;
+}
+
 bool PMTData::OpenPMTDataTTree(){
 
   treeHeader = (TTree*)inputFile->Get("PMTDataHeader");
@@ -70,20 +87,6 @@ bool PMTData::OpenPMTDataTTree(){
     // Assign structure to header branch
     treeHeader->SetBranchAddress("GlobalHeader",hGlobal);
     treeHeader->GetEntry(0);
-
-    // Defining the parameters for conversion from adc to volts
-    if(!strcmp(hGlobal->InstID, "VMESIS6136")){
-      GND = 8225;
-      voltConv = 2.06/5000.0;
-    }
-    else{
-      GND = 216;
-      voltConv = 1.0; // Already in volts for the data of Marcin
-    }
-    std::cout << "InstID : " << hGlobal->InstID  << std::endl;
-    std::cout << "GND and voltConv :" << std::endl;
-    std::cout << GND << std::endl;
-    std::cout << voltConv << std::endl;
 
     nbCh = hGlobal->NumCh;
     tStep = hGlobal->TimeStep*1e9; // in ns
@@ -101,8 +104,18 @@ bool PMTData::OpenPMTDataTTree(){
 
       hSignal[iCh].reserve(static_cast<unsigned long>(treePMTData->GetEntries()));
     }
-
     nbEntries = treePMTData->GetEntries()-1;
+
+    // Defining the parameters for conversion from adc to volts
+    if(!strcmp(hGlobal->InstID, "VMESIS6136")){
+      GND = 8214;
+      voltConv = 2.06/5000.0;
+    }
+    else{
+      GND = 218;
+      voltConv = hCh[signalCh]->Yscale;
+    }
+
     return nbEntries > 0;
 
   } else {
