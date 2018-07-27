@@ -32,11 +32,12 @@ class PMTAnalyzer {
   // PE fitting function
   TF1* fitFunction;
 
+
   // Positions of the peak and tail in the mean signal (extremum in 4ns unit)
   float peakPos[MAXNUMCH];
   float tailPos[MAXNUMCH];
 
-  float undershoot = 0;
+  float undershoot;
 
   // Charge of peaks
   float charges[MAXNUMENTRIES];
@@ -55,6 +56,7 @@ class PMTAnalyzer {
   void CreatePEdistribution();
   void ComputeFit(int nbPE);
   void DisplayFitParts();
+  float ComputeRiseTime(int iEntry);
   
   ////////////////////////////////////// //
   // Various accessors and set functions //
@@ -71,6 +73,10 @@ class PMTAnalyzer {
   float getCharge(int iEntry){ return charges[iEntry];}
   
   TH1F* getPEdistribution(){ return PEdistribution;}
+
+  float samp2time(int samp){ return samp*data->getTimeStep();}
+
+  int time2samp(float time){ return time/data->getTimeStep();}
 };
 
 #endif //PMTANALYSIS_PMTANALYZER_HH

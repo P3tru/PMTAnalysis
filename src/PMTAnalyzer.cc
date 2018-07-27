@@ -165,3 +165,41 @@ void PMTAnalyzer::DisplayFitParts(){
     PEdistribution->GetListOfFunctions()->Add(spe[n]);
   }
 }
+
+float PMTAnalyzer::ComputeRiseTime(int iEntry){
+  float v_max;
+  float v_10, v_90;
+  float t_10 = 0, t_90 = 0;
+  float t1 = 0, t2 = 0;
+  float v1 = 0, v2 = 0;
+  float dt_dv;
+
+  v_max = data->getSignalHistogram(data->getSignalCh(), iEntry)->GetMaximum();
+  v_10 = 0.1*v_max;
+  v_90 = 0.9*v_max;
+  for(int iSamp = time2samp(peakPos[data->getSignalCh()]-20); iSamp < data->getNbSamples(data->getSignalCh()); iSamp++){
+    t1 = t2;
+    t2 = samp2time(iSamp);
+    v1 = v2;
+    v2 = data->getSignalHistogram(data->getSignalCh(), iEntry)->GetBinContent(iSamp+1);
+    if(t_10 == 0){
+      if(v1 < v_10 && v_10 < v2){
+	dt_dv = (t2-t1)/(v2-v1);
+	t_10 = t1 + dt_dv*(v_10-v1);
+      }
+    }
+    if(t_90 == 0){
+      if(v1 < v_90 && v_90 < v2){
+	dt_dv = (t2-t1)/(v2-v1);
+	t_90 = t1 + dt_dv*(v_90-v1);
+      }
+    }
+  }
+  std::cout << "iEntry = " << iEntry << std::endl;
+  std::cout << "t_10 = " << t_10 << std::endl;
+  std::cout << "t_90 = " << t_90 << std::endl;
+  std::cout << "risetime = " << t_90-t_10 << std::endl;
+  std::cout << "--------------------------------" << std::endl;
+  
+  return t_90 - t_10;
+}
