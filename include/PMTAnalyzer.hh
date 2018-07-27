@@ -29,6 +29,8 @@ class PMTAnalyzer {
   TH1F* meanSignal[MAXNUMCH];
   // Histogram of PE distribution
   TH1F* PEdistribution;
+  // Histogram of transit times
+  TH1F* TTdistribution;
   // PE fitting function
   TF1* fitFunction;
 
@@ -38,6 +40,7 @@ class PMTAnalyzer {
   float tailPos[MAXNUMCH];
 
   float undershoot;
+  float TTS;
 
   // Charge of peaks
   float charges[MAXNUMENTRIES];
@@ -56,7 +59,8 @@ class PMTAnalyzer {
   void CreatePEdistribution();
   void ComputeFit(int nbPE);
   void DisplayFitParts();
-  float ComputeRiseTime(int iEntry);
+  float ComputeRiseTime(int iCh, int iEntry);
+  void ComputeTTS();
   
   ////////////////////////////////////// //
   // Various accessors and set functions //
@@ -73,6 +77,9 @@ class PMTAnalyzer {
   float getCharge(int iEntry){ return charges[iEntry];}
   
   TH1F* getPEdistribution(){ return PEdistribution;}
+
+  TH1F* getTTdistribution(){ return TTdistribution;}
+  float getTTS(){ return TTS;}
 
   float samp2time(int samp){ return samp*data->getTimeStep();}
 

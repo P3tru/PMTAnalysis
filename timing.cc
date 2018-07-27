@@ -46,9 +46,8 @@ int main(int argc, char *argv[]) {
     data[iFile] = new PMTData(sources[iFile]);
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
 
-    for(int iEntry = 0; iEntry < data[iFile]->getNbEntries(); iEntry++){
-      analysis[iFile]->ComputeRiseTime(iEntry);
-    }
+    analysis[iFile]->ComputeTTS();
+    analysis[iFile]->getTTdistribution()->Draw();
 
   }
 

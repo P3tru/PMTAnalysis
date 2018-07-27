@@ -24,6 +24,7 @@ PMTAnalyzer::~PMTAnalyzer(){
     delete meanSignal[iCh];
   }
   delete PEdistribution;
+  delete TTdistribution;
   delete fitFunction;
   delete data;
 }
@@ -31,6 +32,7 @@ PMTAnalyzer::~PMTAnalyzer(){
 void PMTAnalyzer::CreateMeanSignal(){
   for(int iCh = 0; iCh < data->getNbCh(); iCh++){
     double tStep = data->getTimeStep();
+    TH1F* subHist;
     meanSignal[iCh] = new TH1F(Form("meanSignal_%s_Ch%d", data->getFileName(), iCh),
 			       Form("MeanSignal"),
 			       data->getNbSamples(iCh),
@@ -43,8 +45,11 @@ void PMTAnalyzer::CreateMeanSignal(){
       meanSignal[iCh]->Add(data->getSignalHistogram(iCh, iEntry));
     }// end iEntry
     meanSignal[iCh]->Scale((float)1/data->getNbEntries());
+    // Getting the tail and peak positions
     peakPos[iCh] = (meanSignal[iCh]->GetMaximumBin()-1)*tStep;
-    tailPos[iCh] = (meanSignal[iCh]->GetMinimumBin()-1)*tStep;    
+    subHist = (TH1F*)meanSignal[iCh]->Clone();
+    subHist->GetXaxis()->SetRangeUser(peakPos[iCh], (data->getNbSamples(iCh)-1)*tStep);
+    tailPos[iCh] = (subHist->GetMinimumBin()-1)*tStep;    
   }// end iCh
 }
 
@@ -166,22 +171,27 @@ void PMTAnalyzer::DisplayFitParts(){
   }
 }
 
-float PMTAnalyzer::ComputeRiseTime(int iEntry){
+float PMTAnalyzer::ComputeRiseTime(int iCh, int iEntry){
   float v_max;
   float v_10, v_90;
   float t_10 = 0, t_90 = 0;
   float t1 = 0, t2 = 0;
   float v1 = 0, v2 = 0;
   float dt_dv;
+  TH1F* subHist;
 
-  v_max = data->getSignalHistogram(data->getSignalCh(), iEntry)->GetMaximum();
+  subHist = (TH1F*)data->getSignalHistogram(iCh, iEntry)->Clone();
+  subHist->GetXaxis()->SetRangeUser(peakPos[iCh]-20, peakPos[iCh]+40);
+  
+  v_max = subHist->GetMaximum();
+  
   v_10 = 0.1*v_max;
   v_90 = 0.9*v_max;
-  for(int iSamp = time2samp(peakPos[data->getSignalCh()]-20); iSamp < data->getNbSamples(data->getSignalCh()); iSamp++){
+  for(int iSamp = time2samp(peakPos[iCh]-20); iSamp < time2samp(peakPos[iCh]+40); iSamp++){
     t1 = t2;
     t2 = samp2time(iSamp);
     v1 = v2;
-    v2 = data->getSignalHistogram(data->getSignalCh(), iEntry)->GetBinContent(iSamp+1);
+    v2 = data->getSignalHistogram(iCh, iEntry)->GetBinContent(iSamp+1);
     if(t_10 == 0){
       if(v1 < v_10 && v_10 < v2){
 	dt_dv = (t2-t1)/(v2-v1);
@@ -202,4 +212,24 @@ float PMTAnalyzer::ComputeRiseTime(int iEntry){
   std::cout << "--------------------------------" << std::endl;
   
   return t_90 - t_10;
+}
+
+void PMTAnalyzer::ComputeTTS(){
+  float triggerTT;
+  float signalTT;
+  float TT;
+  TTdistribution = new TH1F(Form("TTdistribution_%s", data->getFileName()),
+			    Form("TTdistribution"),
+			    100,
+			    0.0,
+			    20.0);
+  for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
+    std::cout << "trigger" << std::endl;
+    triggerTT = ComputeRiseTime(data->getSignalCh(), iEntry);
+    std::cout << "signal" << std::endl;
+    signalTT = ComputeRiseTime(data->getTriggerCh(), iEntry);
+    TT = signalTT - triggerTT;
+    TTdistribution->Fill(TT);
+    TTS = TTdistribution->GetStdDev();
+  }
 }

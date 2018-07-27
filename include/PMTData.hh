@@ -41,8 +41,9 @@ class PMTData {
   int nbSamples[MAXNUMCH];
 
   int nbCh;
-  // Index of the channel containing the relevant data
+  // Index of the channel containing the relevant data and trigger
   int signalCh;
+  int triggerCh;
 
   double tStep;
 
@@ -84,6 +85,9 @@ class PMTData {
 
   void setGND(float GND){ PMTData::GND = GND; }
   int getGND() const { return GND; }
+
+  void setTriggerCh(int triggerCh){ PMTData::triggerCh = triggerCh;}
+  int getTriggerCh() const {return triggerCh;}
 
   void setSignalCh(int signalCh){ PMTData::signalCh = signalCh;}
   int getSignalCh() const {return signalCh;}

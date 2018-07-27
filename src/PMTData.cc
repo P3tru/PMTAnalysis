@@ -19,6 +19,7 @@ PMTData::PMTData(std::string inputUserArg) {
 
   nbEntries=0;
   signalCh = 0;
+  triggerCh = 1;
 
   if(OpenPMTDataTTree()){
     std::cout << "Tree open successfully" << std::endl;
