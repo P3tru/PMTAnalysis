@@ -42,6 +42,8 @@ class PMTAnalyzer {
   float charges[MAXNUMENTRIES];
   float maxCharge;
   float minCharge;
+
+  float meanCharge;
  
  public:
   // Constructor
@@ -52,6 +54,7 @@ class PMTAnalyzer {
   void CreateMeanSignal();
   void ComputeUndershoot();
   void ComputeIntegral();
+  void ComputeIntegralMean();
   void CreatePEdistribution();
   void ComputeFit(int nbPE);
   void DisplayFitParts();
@@ -69,6 +72,8 @@ class PMTAnalyzer {
   float getUndershoot() const { return undershoot;}
 
   float getCharge(int iEntry){ return charges[iEntry];}
+
+  float getMeanCharge(){ return meanCharge;}
   
   TH1F* getPEdistribution(){ return PEdistribution;}
 };

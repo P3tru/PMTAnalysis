@@ -78,6 +78,12 @@ void PMTAnalyzer::ComputeIntegral(){
   }
 }
 
+void PMTAnalyzer::ComputeIntegralMean(){
+  meanCharge = meanSignal[data->getSignalCh()]->Integral(peakPos[data->getSignalCh()]-data->nTot/2,
+							 peakPos[data->getSignalCh()]+data->nTot,
+							 "width");
+}
+
 void PMTAnalyzer::CreatePEdistribution(){
   float mean;
   float sigma;

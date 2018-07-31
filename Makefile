@@ -59,5 +59,10 @@ timing: timing.o $(OBJS)
 fit: fit.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o fit fit.cc $(OBJS) $(EXTRALIBS)
 	$(RM) fit.o $(OBJS)
+
+linearity: linearity.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o linearity linearity.cc $(OBJS) $(EXTRALIBS)
+	$(RM) linearity.o $(OBJS)
+
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit linearity

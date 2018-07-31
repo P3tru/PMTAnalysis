@@ -51,6 +51,12 @@ class PMTData {
   // ADC Channel to volst conversion rate 
   float voltConv;
 
+  // Setup parameters
+  std::string PMT_ID;
+  int position[3];
+  int led;
+  int hv;
+  
   // Histograms of raw signal recorded by DAQ
   std::vector<TH1F*> hSignal[MAXNUMCH];
 
@@ -66,6 +72,7 @@ class PMTData {
 
   void ComputeGND();
   bool OpenPMTDataTTree();
+  void ReadParameters();
   void CreateWaveformsHistogram();
   void WriteOutputFile() { outputFile->Write(); } ;
 
@@ -98,6 +105,11 @@ class PMTData {
   oscheader_ch* getChannelHeader(int ch){ return hCh[ch]; }
 
   const char* getFileName(){ return dataFileName.c_str();}
+
+  const char* getPMT_ID(){ return PMT_ID.c_str();}
+  int* getPosition(){ return position;}
+  int getLed(){ return led;}
+  int getHv(){ return hv;}
 
   ////////////////////////////////////// //
   ////////////////////////////////////// //

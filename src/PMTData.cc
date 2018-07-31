@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <utils.h>
 #include <PMTData.hh>
@@ -26,7 +27,13 @@ PMTData::PMTData(std::string inputUserArg) {
     std::cout << "GND and voltConv :" << std::endl;
     std::cout << GND << std::endl;
     std::cout << voltConv << std::endl;
-    
+    ReadParameters();
+    std::cout << "PMT_ID " << PMT_ID << std::endl;
+    std::cout << "x " << position[0] << std::endl;
+    std::cout << "y " << position[1] << std::endl;
+    std::cout << "z " << position[2] << std::endl;
+    std::cout << "led " << led << std::endl;
+    std::cout << "hv " << hv << std::endl;
   }
 
   std::string str;
@@ -124,6 +131,29 @@ bool PMTData::OpenPMTDataTTree(){
     return false;
 
   }
+}
+
+void PMTData::ReadParameters(){
+  std::vector<std::string> strs;
+  std::vector<std::string> item;
+  boost::split(strs, dataFileName, [](char c) { return c=='-';});
+  PMT_ID = strs[0];
+
+  for(std::vector<std::string>::iterator it = strs.begin();it!=strs.end();++it){
+    boost::split(item, *it, [](char c) { return c=='_';});
+
+    if(!strcmp(item[0].c_str(), "led")){
+	led = std::stoi(item[1].c_str());
+    }
+    if(!strcmp(item[0].c_str(), "pos")){
+	position[0] = std::stoi(item[1].c_str());
+	position[1] = std::stoi(item[2].c_str());
+	position[2] = std::stoi(item[3].c_str());
+    }
+    if(!strcmp(item[0].c_str(), "hv")){
+	hv = std::stoi(item[1].c_str());
+    }
+  } 
 }
 
 void PMTData::CreateWaveformsHistogram() {
