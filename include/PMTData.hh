@@ -42,8 +42,8 @@ class PMTData {
 
   int nbCh;
   // Index of the channel containing the relevant data and trigger
-  int signalCh;
-  int triggerCh;
+  unsigned int signalCh;
+  unsigned int triggerCh;
 
   double tStep;
 
@@ -87,10 +87,10 @@ class PMTData {
   int getGND() const { return GND; }
 
   void setTriggerCh(int triggerCh){ PMTData::triggerCh = triggerCh;}
-  int getTriggerCh() const {return triggerCh;}
+  unsigned int getTriggerCh() const {return triggerCh;}
 
   void setSignalCh(int signalCh){ PMTData::signalCh = signalCh;}
-  int getSignalCh() const {return signalCh;}
+  unsigned int getSignalCh() const {return signalCh;}
 
   double getTimeStep() const { return tStep;}
 

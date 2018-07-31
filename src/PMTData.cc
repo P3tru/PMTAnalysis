@@ -150,10 +150,16 @@ void PMTData::CreateWaveformsHistogram() {
       hSignal[iCh][iEntry]->GetYaxis()->SetTitle("Volts");
 
       // Fill hist and graph
-      for (int i = 0; i < nbSamples[iCh]; i++) {
-        hSignal[iCh][iEntry]->SetBinContent(i + 1, -adc2V(data[iCh][i]));
+      if(iCh == signalCh){
+	for (int i = 0; i < nbSamples[iCh]; i++) {
+	  hSignal[iCh][iEntry]->SetBinContent(i + 1, -adc2V(data[iCh][i]));
+	}
       }
-
+      else{
+	for (int i = 0; i < nbSamples[iCh]; i++) {
+	  hSignal[iCh][iEntry]->SetBinContent(i + 1, data[iCh][i]);
+	}
+      }
     } // END for iCh
 
     // Give status

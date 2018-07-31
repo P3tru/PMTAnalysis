@@ -59,7 +59,7 @@ class PMTAnalyzer {
   void CreatePEdistribution();
   void ComputeFit(int nbPE);
   void DisplayFitParts();
-  float ComputeRiseTime(int iCh, int iEntry);
+  float ComputeRiseTime(unsigned int iCh, int iEntry);
   void ComputeTTS();
   
   ////////////////////////////////////// //

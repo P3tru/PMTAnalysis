@@ -88,13 +88,16 @@ void PMTAnalyzer::CreatePEdistribution(){
   float sigma;
   ComputeIntegral();
   PEdistribution = new TH1F(Form("PEdistribution_%s", data->getFileName()),
-				 Form("PE peak"),
+				 Form("PE distribution"),
 				 100,
 				 minCharge,
 				 maxCharge);
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
     PEdistribution->Fill(charges[iEntry]);
   }
+  PEdistribution->SetXTitle("Charge (V*ns)");
+  PEdistribution->SetYTitle("Number of entries");
+  
   /*// Redefining histogram and functions limits
   mean = PEdistribution->GetMean();
   sigma = PEdistribution->GetStdDev();
@@ -171,8 +174,8 @@ void PMTAnalyzer::DisplayFitParts(){
   }
 }
 
-float PMTAnalyzer::ComputeRiseTime(int iCh, int iEntry){
-  float v_max;
+float PMTAnalyzer::ComputeRiseTime(unsigned int iCh, int iEntry){
+  float v_max, v_min, delta;
   float v_10, v_90;
   float t_10 = 0, t_90 = 0;
   float t1 = 0, t2 = 0;
@@ -180,14 +183,21 @@ float PMTAnalyzer::ComputeRiseTime(int iCh, int iEntry){
   float dt_dv;
   TH1F* subHist;
 
+  if(data->getTriggerCh() == iCh){
+    peakPos[iCh] = samp2time(data->getSignalHistogram(iCh, iEntry)->GetMaximumBin()-1);
+  }
+
   subHist = (TH1F*)data->getSignalHistogram(iCh, iEntry)->Clone();
-  subHist->GetXaxis()->SetRangeUser(peakPos[iCh]-20, peakPos[iCh]+40);
-  
+  subHist->GetXaxis()->SetRangeUser(peakPos[iCh]-20, peakPos[iCh]+60);  
   v_max = subHist->GetMaximum();
+
+  subHist->GetXaxis()->SetRangeUser(peakPos[iCh]-200, peakPos[iCh]-100);  
+  v_min = subHist->GetMinimum();
+  delta = v_max-v_min;
   
-  v_10 = 0.1*v_max;
-  v_90 = 0.9*v_max;
-  for(int iSamp = time2samp(peakPos[iCh]-20); iSamp < time2samp(peakPos[iCh]+40); iSamp++){
+  v_10 = v_min + 0.1*delta;
+  v_90 = v_min + 0.9*delta;
+  for(int iSamp = time2samp(peakPos[iCh]-20); iSamp < time2samp(peakPos[iCh]+60); iSamp++){
     t1 = t2;
     t2 = samp2time(iSamp);
     v1 = v2;
@@ -206,8 +216,6 @@ float PMTAnalyzer::ComputeRiseTime(int iCh, int iEntry){
     }
   }
   std::cout << "iEntry = " << iEntry << std::endl;
-  std::cout << "t_10 = " << t_10 << std::endl;
-  std::cout << "t_90 = " << t_90 << std::endl;
   std::cout << "risetime = " << t_90-t_10 << std::endl;
   std::cout << "--------------------------------" << std::endl;
   
@@ -215,21 +223,22 @@ float PMTAnalyzer::ComputeRiseTime(int iCh, int iEntry){
 }
 
 void PMTAnalyzer::ComputeTTS(){
-  float triggerTT;
-  float signalTT;
+  float triggerRT;
+  float signalRT;
   float TT;
   TTdistribution = new TH1F(Form("TTdistribution_%s", data->getFileName()),
 			    Form("TTdistribution"),
 			    100,
 			    0.0,
-			    20.0);
+			    6.0);
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
-    std::cout << "trigger" << std::endl;
-    triggerTT = ComputeRiseTime(data->getSignalCh(), iEntry);
     std::cout << "signal" << std::endl;
-    signalTT = ComputeRiseTime(data->getTriggerCh(), iEntry);
-    TT = signalTT - triggerTT;
+    signalRT = ComputeRiseTime(data->getSignalCh(), iEntry);
+    std::cout << "trigger" << std::endl;
+    triggerRT = ComputeRiseTime(data->getTriggerCh(), iEntry);
+    TT = signalRT - triggerRT;
+    std::cout << "TT = " << TT << std::endl;
     TTdistribution->Fill(TT);
-    TTS = TTdistribution->GetStdDev();
   }
+  TTS = TTdistribution->GetStdDev();
 }
