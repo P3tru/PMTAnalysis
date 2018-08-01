@@ -68,5 +68,9 @@ gain: gain.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o gain gain.cc $(OBJS) $(EXTRALIBS)
 	$(RM) gain.o $(OBJS)
 
+mapping: mapping.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o mapping mapping.cc $(OBJS) $(EXTRALIBS)
+	$(RM) mapping.o $(OBJS)
+
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit linearity gain
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit linearity gain mapping
