@@ -45,6 +45,11 @@ int main(int argc, char *argv[]) {
     led[iFile] = data[iFile]->getLed();
   }
   linearity = new TGraph(nFiles, led, meanCharge);
+  linearity->SetTitle("Linear response against light intensity");
+  linearity->GetXaxis()->SetTitle("Led (au)");
+  linearity->GetYaxis()->SetTitle("Mean charge (V*ns)");
+  
+  linearity->Sort();
   linearity->Draw();
 
   /////////////////////////

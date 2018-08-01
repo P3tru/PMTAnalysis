@@ -115,7 +115,7 @@ bool PMTData::OpenPMTDataTTree(){
 
     // Defining the parameters for conversion from adc to volts
     if(!strcmp(hGlobal->InstID, "VMESIS6136")){
-      GND = 8214;
+      GND = 8217;
       voltConv = 2.06/5000.0;
     }
     else{

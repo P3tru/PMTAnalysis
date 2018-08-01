@@ -79,9 +79,10 @@ void PMTAnalyzer::ComputeIntegral(){
 }
 
 void PMTAnalyzer::ComputeIntegralMean(){
-  meanCharge = meanSignal[data->getSignalCh()]->Integral(peakPos[data->getSignalCh()]-data->nTot/2,
-							 peakPos[data->getSignalCh()]+data->nTot,
+  meanCharge = meanSignal[data->getSignalCh()]->Integral(time2bin(peakPos[data->getSignalCh()]-20),
+							 time2bin(peakPos[data->getSignalCh()]+80),
 							 "width");
+  std::cout << "meanCharge = " << meanCharge << std::endl;
 }
 
 void PMTAnalyzer::CreatePEdistribution(){
