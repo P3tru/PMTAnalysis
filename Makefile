@@ -64,5 +64,9 @@ linearity: linearity.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o linearity linearity.cc $(OBJS) $(EXTRALIBS)
 	$(RM) linearity.o $(OBJS)
 
+gain: gain.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o gain gain.cc $(OBJS) $(EXTRALIBS)
+	$(RM) gain.o $(OBJS)
+
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit linearity
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit linearity gain
