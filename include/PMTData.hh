@@ -107,7 +107,7 @@ class PMTData {
   const char* getFileName(){ return dataFileName.c_str();}
 
   const char* getPMT_ID(){ return PMT_ID.c_str();}
-  int* getPosition(){ return position;}
+  int getPosition(int iPos){ return position[iPos];}
   int getLed(){ return led;}
   int getHv(){ return hv;}
 

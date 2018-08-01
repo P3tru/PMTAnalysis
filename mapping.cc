@@ -28,10 +28,11 @@ int main(int argc, char *argv[]) {
   PMTData *data[MAXNUMFILES];
   PMTAnalyzer *analysis[MAXNUMFILES];
   float meanCharge[MAXNUMFILES];
-  float hv[MAXNUMFILES];
+  float x[MAXNUMFILES], y[MAXNUMFILES];
 
-  TGraph* gain;
-
+  TGraph2D* tmp;
+  TH1F* mapping;
+  
   // INSERT FUNCTIONS BELOW
   /////////////////////////
 
@@ -42,17 +43,16 @@ int main(int argc, char *argv[]) {
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
     analysis[iFile]->ComputeIntegralMean();
     meanCharge[iFile] = analysis[iFile]->getMeanCharge();
-    hv[iFile] = data[iFile]->getHv();
+    x[iFile] = data[iFile]->getPosition(0);
+    y[iFile] = data[iFile]->getPosition(1);    
   }
-  gain = new TGraph(nFiles, hv, meanCharge);
-  gain->SetTitle("Gain curve");
-  gain->GetXaxis()->SetTitle("High voltage (V)");
-  gain->GetYaxis()->SetTitle("Mean charge (V*ns)");
+  tmp = new TGraph2D(nFiles, x, y, meanCharge);
+  mapping = tmp->GetHistogram();
+  mapping->SetTitle("Relative collected charge against position");
+  mapping->SetXTitle("x (cm)");
+  mapping->SetXTitle("y (cm)");
   
-  gain->Sort();
-  gain->SetMarkerStyle(2);
-  gain->Fit("expo");
-  gain->Draw("AP");
+  
 
   /////////////////////////
   // ...
