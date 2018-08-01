@@ -45,12 +45,14 @@ int main(int argc, char *argv[]) {
     hv[iFile] = data[iFile]->getHv();
   }
   gain = new TGraph(nFiles, hv, meanCharge);
-  gain->SetTitle("Linear response against light intensity");
-  gain->GetXaxis()->SetTitle("Led (au)");
+  gain->SetTitle("Gain curve");
+  gain->GetXaxis()->SetTitle("High voltage (V)");
   gain->GetYaxis()->SetTitle("Mean charge (V*ns)");
   
   gain->Sort();
-  gain->Draw();
+  gain->SetMarkerStyle(2);
+  gain->Fit("expo");
+  gain->Draw("AP");
 
   /////////////////////////
   // ...
