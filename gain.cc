@@ -28,9 +28,9 @@ int main(int argc, char *argv[]) {
   PMTData *data[MAXNUMFILES];
   PMTAnalyzer *analysis[MAXNUMFILES];
   float meanCharge[MAXNUMFILES];
-  float led[MAXNUMFILES];
+  float hv[MAXNUMFILES];
 
-  TGraph* linearity;
+  TGraph* gain;
 
   // INSERT FUNCTIONS BELOW
   /////////////////////////
@@ -42,15 +42,15 @@ int main(int argc, char *argv[]) {
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
     analysis[iFile]->ComputeIntegralMean();
     meanCharge[iFile] = analysis[iFile]->getMeanCharge();
-    led[iFile] = data[iFile]->getLed();
+    hv[iFile] = data[iFile]->getHv();
   }
-  linearity = new TGraph(nFiles, led, meanCharge);
-  linearity->SetTitle("Linear response against light intensity");
-  linearity->GetXaxis()->SetTitle("Led (au)");
-  linearity->GetYaxis()->SetTitle("Mean charge (V*ns)");
+  gain = new TGraph(nFiles, hv, meanCharge);
+  gain->SetTitle("Linear response against light intensity");
+  gain->GetXaxis()->SetTitle("Led (au)");
+  gain->GetYaxis()->SetTitle("Mean charge (V*ns)");
   
-  linearity->Sort();
-  linearity->Draw();
+  gain->Sort();
+  gain->Draw();
 
   /////////////////////////
   // ...
