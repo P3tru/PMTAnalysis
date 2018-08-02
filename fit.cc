@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     analysis[iFile]->ComputeFit(3);
     analysis[iFile]->DisplayFitParts();
     analysis[iFile]->getPEdistribution()->Draw();
+    data[iFile]->WriteOutputFile();
   }
   
 

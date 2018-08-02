@@ -68,8 +68,8 @@ void PMTAnalyzer::ComputeIntegral(){
   maxCharge = -10000;
   minCharge = 10000;
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
-    charges[iEntry] = data->getSignalHistogram(signalCh, iEntry)->Integral(peakPos[signalCh]-data->nTot/2,
-									   peakPos[signalCh]+data->nTot,
+    charges[iEntry] = data->getSignalHistogram(signalCh, iEntry)->Integral(time2bin(peakPos[signalCh]-20),
+									   time2bin(peakPos[signalCh]+80),
 									   "width");
    
     if(charges[iEntry] > maxCharge) maxCharge = charges[iEntry];
@@ -83,10 +83,12 @@ void PMTAnalyzer::CreatePEdistribution(){
   float sigma;
   ComputeIntegral();
   PEdistribution = new TH1F(Form("PEdistribution_%s", data->getFileName()),
-				 Form("PE peak"),
+				 Form("PE distribution"),
 				 100,
 				 minCharge,
 				 maxCharge);
+  PEdistribution->SetXTitle("Charge (V*ns)");
+  PEdistribution->SetYTitle("Number of entries");
   for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
     PEdistribution->Fill(charges[iEntry]);
   }
@@ -111,23 +113,25 @@ void PMTAnalyzer::CreatePEdistribution(){
 void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fit defined in functions.cc
   Double_t w = 0.05;
-  Double_t Q0 = PEdistribution->GetMean()*0.7;
+  Double_t Q0 = PEdistribution->GetMean()*0.5;
   Double_t sigma0 = PEdistribution->GetStdDev()*0.7;
-  Double_t alpha = 1/(0.1*PEdistribution->GetStdDev());
-  Double_t mu = 1;
-  Double_t Q1 = PEdistribution->GetStdDev()*0.7;
+  Double_t alpha = 1/(0.3*PEdistribution->GetStdDev());
+  Double_t mu = 1.0;
+  Double_t Q1 = PEdistribution->GetStdDev()*0.8;
   Double_t sigma1 = PEdistribution->GetStdDev()*0.7;
   
   fitFunction->SetParNames("N", "Const", "w", "Q0", "sigma0", "alpha", "mu", "Q1", "sigma1");
   fitFunction->SetParameters(nbPE, data->getNbEntries(), w, Q0, sigma0, alpha, mu, Q1, sigma1);
   // Fixing the number of PE
   fitFunction->FixParameter(0, nbPE);
+  fitFunction->FixParameter(2, 0);  
+  fitFunction->FixParameter(5, alpha);  
   // Avoiding negative parameters
   fitFunction->SetParLimits(1, 0, 100000);
-  fitFunction->SetParLimits(2, 0, 1);
+  //fitFunction->SetParLimits(2, 0, 1);
   fitFunction->SetParLimits(3, 0, 10000);
   fitFunction->SetParLimits(4, 0, 10000);
-  fitFunction->SetParLimits(5, 0, 10000);
+  //fitFunction->SetParLimits(5, 0, 10000);
   fitFunction->SetParLimits(6, 0, 10000);
   fitFunction->SetParLimits(7, 0, 10000);
   fitFunction->SetParLimits(8, 0, 10000);

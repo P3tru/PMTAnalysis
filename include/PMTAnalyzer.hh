@@ -71,6 +71,8 @@ class PMTAnalyzer {
   float getCharge(int iEntry){ return charges[iEntry];}
   
   TH1F* getPEdistribution(){ return PEdistribution;}
+
+  int time2bin(float time){ return time/data->getTimeStep()+1;}
 };
 
 #endif //PMTANALYSIS_PMTANALYZER_HH
