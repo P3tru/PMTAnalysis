@@ -27,11 +27,13 @@ int main(int argc, char *argv[]) {
 
   PMTData *data[MAXNUMFILES];
   PMTAnalyzer *analysis[MAXNUMFILES];
-  float meanCharge[MAXNUMFILES];
-  float x[MAXNUMFILES], y[MAXNUMFILES];
+  float step = 0.5; // in cm
+  Double_t meanCharge[MAXNUMFILES];
+  Double_t x[MAXNUMFILES], y[MAXNUMFILES];
+  float xlow = 0, xup = 0;
+  float ylow = 0, yup = 0;
 
-  TGraph2D* tmp;
-  TH1F* mapping;
+  TH2F* mapping;
   
   // INSERT FUNCTIONS BELOW
   /////////////////////////
@@ -43,15 +45,20 @@ int main(int argc, char *argv[]) {
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
     analysis[iFile]->ComputeIntegralMean();
     meanCharge[iFile] = analysis[iFile]->getMeanCharge();
-    x[iFile] = data[iFile]->getPosition(0);
-    y[iFile] = data[iFile]->getPosition(1);    
+    x[iFile] = data[iFile]->getPosition(0)*step;
+    y[iFile] = data[iFile]->getPosition(1)*step;
+    
+    if(x[iFile] > xup) xup = x[iFile];
+    if(x[iFile] < xlow) xlow = x[iFile];
+    if(y[iFile] > yup) yup = y[iFile];
+    if(y[iFile] < ylow) xlow = y[iFile];    
   }
-  tmp = new TGraph2D(nFiles, x, y, meanCharge);
-  mapping = tmp->GetHistogram();
+  mapping = new TH2F("Mapping", "Relative collected charge against position", nFiles, xlow - step/2, xup + step/2, nFiles, ylow - step/2, yup + step/2);
+  mapping->FillN(nFiles, x, y, meanCharge);
   mapping->SetTitle("Relative collected charge against position");
   mapping->SetXTitle("x (cm)");
   mapping->SetXTitle("y (cm)");
-  
+  mapping->Draw();
   
 
   /////////////////////////

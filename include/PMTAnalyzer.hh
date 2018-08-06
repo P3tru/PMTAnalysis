@@ -10,9 +10,11 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TF1.h>
 
 #include <TGraph.h>
+#include <TGraph2D.h>
 
 #include <PMTData.hh>
 #include <functions.hh>
