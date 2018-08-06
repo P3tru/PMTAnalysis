@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
   Double_t x[MAXNUMFILES], y[MAXNUMFILES];
   float xlow = 0, xup = 0;
   float ylow = 0, yup = 0;
+  int nx, ny;
 
   TH2F* mapping;
   
@@ -51,9 +52,11 @@ int main(int argc, char *argv[]) {
     if(x[iFile] > xup) xup = x[iFile];
     if(x[iFile] < xlow) xlow = x[iFile];
     if(y[iFile] > yup) yup = y[iFile];
-    if(y[iFile] < ylow) xlow = y[iFile];    
+    if(y[iFile] < ylow) xlow = y[iFile];
+    nx = (xup - xlow)/step;
+    ny = (yup - ylow)/step;
   }
-  mapping = new TH2F("Mapping", "Relative collected charge against position", nFiles, xlow - step/2, xup + step/2, nFiles, ylow - step/2, yup + step/2);
+  mapping = new TH2F("Mapping", "Relative collected charge against position", nx, xlow - step/2, xup + step/2, ny, ylow - step/2, yup + step/2);
   mapping->FillN(nFiles, x, y, meanCharge);
   mapping->SetTitle("Relative collected charge against position");
   mapping->SetXTitle("x (cm)");
