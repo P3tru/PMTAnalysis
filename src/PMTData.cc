@@ -136,22 +136,25 @@ bool PMTData::OpenPMTDataTTree(){
 void PMTData::ReadParameters(){
   std::vector<std::string> strs;
   std::vector<std::string> item;
-  boost::split(strs, dataFileName, [](char c) { return c=='-';});
-  PMT_ID = strs[0];
+  boost::split(strs, dataFileName, [](char c) { return c=='_';});
+  boost::split(item, strs[0], [](char c) { return c=='-';});
+  PMT_ID = item[0];
 
   for(std::vector<std::string>::iterator it = strs.begin();it!=strs.end();++it){
-    boost::split(item, *it, [](char c) { return c=='_';});
+    boost::split(item, *it, [](char c) { return c=='-';});
 
-    if(!strcmp(item[0].c_str(), "led")){
-	led = std::stoi(item[1].c_str());
-    }
-    if(!strcmp(item[0].c_str(), "pos")){
-	position[0] = std::stoi(item[1].c_str());
-	position[1] = std::stoi(item[2].c_str());
-	position[2] = std::stoi(item[3].c_str());
-    }
-    if(!strcmp(item[0].c_str(), "hv")){
-	hv = std::stoi(item[1].c_str());
+    if(item.size() > 1){
+      if(!strcmp(item[1].c_str(), "led")){
+	led = std::stoi(((std::string)*(it+1)).c_str());
+      }
+      if(!strcmp(item[1].c_str(), "pos") && it!=strs.end()-1){
+	position[0] = std::stoi(((std::string)*(it+1)).c_str());
+	position[1] = std::stoi(((std::string)*(it+2)).c_str());
+	position[2] = std::stoi(((std::string)*(it+3)).c_str());
+      }
+      if(!strcmp(item[1].c_str(), "hv")){
+	hv = std::stoi(((std::string)*(it+1)).c_str());
+      }
     }
   } 
 }

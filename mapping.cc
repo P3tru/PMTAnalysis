@@ -27,11 +27,15 @@ int main(int argc, char *argv[]) {
 
   PMTData *data[MAXNUMFILES];
   PMTAnalyzer *analysis[MAXNUMFILES];
-  float meanCharge[MAXNUMFILES];
-  float hv[MAXNUMFILES];
+  float step = 0.5; // in cm
+  Double_t meanCharge[MAXNUMFILES];
+  Double_t x[MAXNUMFILES], y[MAXNUMFILES];
+  float xlow = 0, xup = 0;
+  float ylow = 0, yup = 0;
+  int nx, ny;
 
-  TGraph* gain;
-
+  TH2F* mapping;
+  
   // INSERT FUNCTIONS BELOW
   /////////////////////////
 
@@ -42,17 +46,23 @@ int main(int argc, char *argv[]) {
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
     analysis[iFile]->ComputeIntegralMean();
     meanCharge[iFile] = analysis[iFile]->getMeanCharge();
-    hv[iFile] = data[iFile]->getHv();
+    x[iFile] = data[iFile]->getPosition(0)*step;
+    y[iFile] = data[iFile]->getPosition(1)*step;
+    
+    if(x[iFile] > xup) xup = x[iFile];
+    if(x[iFile] < xlow) xlow = x[iFile];
+    if(y[iFile] > yup) yup = y[iFile];
+    if(y[iFile] < ylow) xlow = y[iFile];
+    nx = (xup - xlow)/step;
+    ny = (yup - ylow)/step;
   }
-  gain = new TGraph(nFiles, hv, meanCharge);
-  gain->SetTitle("Gain curve");
-  gain->GetXaxis()->SetTitle("High voltage (V)");
-  gain->GetYaxis()->SetTitle("Mean charge (V*ns)");
+  mapping = new TH2F("Mapping", "Relative collected charge against position", nx, xlow - step/2, xup + step/2, ny, ylow - step/2, yup + step/2);
+  mapping->FillN(nFiles, x, y, meanCharge);
+  mapping->SetTitle("Relative collected charge against position");
+  mapping->SetXTitle("x (cm)");
+  mapping->SetXTitle("y (cm)");
+  mapping->Draw();
   
-  gain->Sort();
-  gain->SetMarkerStyle(2);
-  gain->Fit("expo");
-  gain->Draw("AP");
 
   /////////////////////////
   // ...
