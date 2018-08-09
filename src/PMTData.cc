@@ -147,7 +147,7 @@ void PMTData::ReadParameters(){
       if(!strcmp(item[1].c_str(), "led")){
 	led = std::stoi(((std::string)*(it+1)).c_str());
       }
-      if(!strcmp(item[1].c_str(), "pos")){
+      if(!strcmp(item[1].c_str(), "pos") && it!=strs.end()-1){
 	position[0] = std::stoi(((std::string)*(it+1)).c_str());
 	position[1] = std::stoi(((std::string)*(it+2)).c_str());
 	position[2] = std::stoi(((std::string)*(it+3)).c_str());
