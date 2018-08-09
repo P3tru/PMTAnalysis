@@ -50,7 +50,9 @@ int main(int argc, char *argv[]) {
   linearity->GetYaxis()->SetTitle("Mean charge (V*ns)");
   
   linearity->Sort();
-  linearity->Draw();
+  linearity->SetMarkerStyle(2);
+  linearity->Fit("pol1", "", "", 700, 1100);
+  linearity->Draw("AP");
 
   /////////////////////////
   // ...
