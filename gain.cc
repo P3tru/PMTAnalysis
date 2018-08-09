@@ -51,7 +51,8 @@ int main(int argc, char *argv[]) {
   
   gain->Sort();
   gain->SetMarkerStyle(2);
-  gain->Fit("expo");
+  TF1* f = new TF1("f", "pol0(0)+expo(1)");
+  gain->Fit("f");
   gain->Draw("AP");
 
   /////////////////////////
