@@ -112,12 +112,12 @@ void PMTAnalyzer::CreatePEdistribution(){
 
 void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fit defined in functions.cc
-  Double_t w = 0.05;
-  Double_t Q0 = PEdistribution->GetMean()*0.5;
-  Double_t sigma0 = PEdistribution->GetStdDev()*0.7;
+  Double_t w = 0.0;
+  Double_t Q0 = PEdistribution->GetMean()*0.8;
+  Double_t sigma0 = PEdistribution->GetStdDev()*0.4;
   Double_t alpha = 1/(0.3*PEdistribution->GetStdDev());
-  Double_t mu = 1.0;
-  Double_t Q1 = PEdistribution->GetStdDev()*0.8;
+  Double_t mu = 0.1;
+  Double_t Q1 = PEdistribution->GetStdDev()*1.0;
   Double_t sigma1 = PEdistribution->GetStdDev()*0.7;
   
   fitFunction->SetParNames("N", "Const", "w", "Q0", "sigma0", "alpha", "mu", "Q1", "sigma1");
@@ -168,4 +168,12 @@ void PMTAnalyzer::DisplayFitParts(){
     spe[n]->SetLineColor(n+5); //yellow, pink, clear blue, green, ...    
     PEdistribution->GetListOfFunctions()->Add(spe[n]);
   }
+}
+
+void PMTAnalyzer::ComputeDarkRates(){
+  float nbPeaks;
+  ComputeFit(3);
+  DisplayFitParts();
+  nbPeaks = PEdistribution->GetListOfFunctions()->FindObject("spe1")->Integral(minCharge, maxCharge);
+  darkRates = nbPeaks/(100*data->GetNbEntries());
 }

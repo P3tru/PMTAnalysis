@@ -37,6 +37,7 @@ class PMTAnalyzer {
   float tailPos[MAXNUMCH];
 
   float undershoot = 0;
+  float darkRates;
 
   // Charge of peaks
   float charges[MAXNUMENTRIES];
@@ -55,6 +56,7 @@ class PMTAnalyzer {
   void CreatePEdistribution();
   void ComputeFit(int nbPE);
   void DisplayFitParts();
+  void ComputeDarkRates();
   
   ////////////////////////////////////// //
   // Various accessors and set functions //
@@ -71,6 +73,8 @@ class PMTAnalyzer {
   float getCharge(int iEntry){ return charges[iEntry];}
   
   TH1F* getPEdistribution(){ return PEdistribution;}
+
+  float getDarkRates(){ return darkRates;}
 
   int time2bin(float time){ return time/data->getTimeStep()+1;}
 };
