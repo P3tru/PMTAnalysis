@@ -55,6 +55,7 @@ class PMTAnalyzer {
 
   void CreateMeanSignal();
   void ComputeUndershoot();
+  void DisplayUndershoot();
   void ComputeIntegral();
   void ComputeIntegralMean();
   void CreatePEdistribution();

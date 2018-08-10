@@ -63,6 +63,11 @@ void PMTAnalyzer::ComputeUndershoot(){
 
 }
 
+void PMTAnalyzer::DisplayUndershoot(){
+  meanSignal[data->getSignalCh()]->Draw("hist");
+  meanSignal[data->getSignalCh()]->GetListOfFunctions()->FindObject("f")->Draw("same");
+}
+
 void PMTAnalyzer::ComputeIntegral(){
   int signalCh = data->getSignalCh();
   maxCharge = -10000;
