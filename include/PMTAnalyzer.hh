@@ -56,7 +56,7 @@ class PMTAnalyzer {
   void CreatePEdistribution();
   void ComputeFit(int nbPE);
   void DisplayFitParts();
-  void ComputeDarkRates();
+  void ComputeDarkRates(int nbPE);
   
   ////////////////////////////////////// //
   // Various accessors and set functions //

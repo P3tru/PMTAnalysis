@@ -114,10 +114,10 @@ void PMTAnalyzer::ComputeFit(int nbPE){
   fitFunction = new TF1("fitFunction", fit, minCharge, maxCharge, 9); // fit defined in functions.cc
   Double_t w = 0.0;
   Double_t Q0 = PEdistribution->GetMean()*0.8;
-  Double_t sigma0 = PEdistribution->GetStdDev()*0.4;
+  Double_t sigma0 = PEdistribution->GetStdDev()*0.7;
   Double_t alpha = 1/(0.3*PEdistribution->GetStdDev());
-  Double_t mu = 0.1;
-  Double_t Q1 = PEdistribution->GetStdDev()*1.0;
+  Double_t mu = 0.2;
+  Double_t Q1 = PEdistribution->GetStdDev()*1.5;
   Double_t sigma1 = PEdistribution->GetStdDev()*0.7;
   
   fitFunction->SetParNames("N", "Const", "w", "Q0", "sigma0", "alpha", "mu", "Q1", "sigma1");
@@ -170,10 +170,13 @@ void PMTAnalyzer::DisplayFitParts(){
   }
 }
 
-void PMTAnalyzer::ComputeDarkRates(){
-  float nbPeaks;
-  ComputeFit(3);
+void PMTAnalyzer::ComputeDarkRates(int nbPE){
+  float nbPeaks = 0;
+  CreatePEdistribution();
+  ComputeFit(nbPE);
   DisplayFitParts();
-  nbPeaks = PEdistribution->GetListOfFunctions()->FindObject("spe1")->Integral(minCharge, maxCharge);
-  darkRates = nbPeaks/(100*data->GetNbEntries());
+  for(int n = 1; n <= nbPE; n++){
+    nbPeaks += ((TF1*)PEdistribution->GetListOfFunctions()->FindObject(Form("spe%d", n)))->Integral(minCharge, maxCharge);
+  }
+  darkRates = nbPeaks/(100*10e-9*(float)data->getNbEntries());
 }
