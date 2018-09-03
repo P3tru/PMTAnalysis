@@ -2,6 +2,7 @@
 #include <TApplication.h>
 
 #include <PMTData.hh>
+#include <PMTAnalyzer.hh>
 
 #define MAXNUMFILES 10000 // MAX nb of files processed
 
@@ -9,14 +10,6 @@ static void show_usage(std::string name);
 static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources);
 
 int main(int argc, char *argv[]) {
-
-  /* TODO :
-   * Measure transition time spread (TTS) of PMT
-   * Work with low light I would say (we want TTS for 1 PE signals)
-   * 1/ Compute rise time for each signal
-   * 2/ Compare to LED rise time
-   * 3/ histogram the difference between the 2 for each signals
-  */
 
   // Nb files processed
   int nFiles = 0;
@@ -33,7 +26,16 @@ int main(int argc, char *argv[]) {
   processArgs(&theApp, &nFiles, sources);
 
   PMTData *data[MAXNUMFILES];
+  PMTAnalyzer *analysis[MAXNUMFILES];
+  float step = 0.5; // in cm
+  Double_t meanCharge[MAXNUMFILES];
+  Double_t x[MAXNUMFILES], y[MAXNUMFILES];
+  float xlow = 0, xup = 0;
+  float ylow = 0, yup = 0;
+  int nx, ny;
 
+  TH2F* mapping;
+  
   // INSERT FUNCTIONS BELOW
   /////////////////////////
 
@@ -41,8 +43,26 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Processing file " << sources[iFile] << std::endl;
     data[iFile] = new PMTData(sources[iFile]);
-
+    analysis[iFile] = new PMTAnalyzer(data[iFile]);
+    analysis[iFile]->ComputeIntegralMean();
+    meanCharge[iFile] = analysis[iFile]->getMeanCharge();
+    x[iFile] = data[iFile]->getPosition(0)*step;
+    y[iFile] = data[iFile]->getPosition(1)*step;
+    
+    if(x[iFile] > xup) xup = x[iFile];
+    if(x[iFile] < xlow) xlow = x[iFile];
+    if(y[iFile] > yup) yup = y[iFile];
+    if(y[iFile] < ylow) xlow = y[iFile];
+    nx = (xup - xlow)/step;
+    ny = (yup - ylow)/step;
   }
+  mapping = new TH2F("Mapping", "Relative collected charge against position", nx, xlow - step/2, xup + step/2, ny, ylow - step/2, yup + step/2);
+  mapping->FillN(nFiles, x, y, meanCharge);
+  mapping->SetTitle("Relative collected charge against position");
+  mapping->SetXTitle("x (cm)");
+  mapping->SetXTitle("y (cm)");
+  mapping->Draw();
+  
 
   /////////////////////////
   // ...

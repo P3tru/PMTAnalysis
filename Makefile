@@ -56,5 +56,21 @@ timing: timing.o $(OBJS)
 	$(CXX) $(CPPFLAGS) -o timing timing.cc $(OBJS) $(EXTRALIBS)
 	$(RM) timing.o $(OBJS)
 
+fit: fit.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o fit fit.cc $(OBJS) $(EXTRALIBS)
+	$(RM) fit.o $(OBJS)
+
+linearity: linearity.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o linearity linearity.cc $(OBJS) $(EXTRALIBS)
+	$(RM) linearity.o $(OBJS)
+
+gain: gain.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o gain gain.cc $(OBJS) $(EXTRALIBS)
+	$(RM) gain.o $(OBJS)
+
+mapping: mapping.o $(OBJS)
+	$(CXX) $(CPPFLAGS) -o mapping mapping.cc $(OBJS) $(EXTRALIBS)
+	$(RM) mapping.o $(OBJS)
+
 clean:
-	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing
+	$(RM) $(OBJS) PMTAnalysis showPlots darkRates afterPulses undershoot timing fit linearity gain mapping

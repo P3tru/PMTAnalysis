@@ -2,6 +2,7 @@
 #include <TApplication.h>
 
 #include <PMTData.hh>
+#include <PMTAnalyzer.hh>
 
 #define MAXNUMFILES 10000 // MAX nb of files processed
 
@@ -9,14 +10,6 @@ static void show_usage(std::string name);
 static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources);
 
 int main(int argc, char *argv[]) {
-
-  /* TODO :
-   * Measure transition time spread (TTS) of PMT
-   * Work with low light I would say (we want TTS for 1 PE signals)
-   * 1/ Compute rise time for each signal
-   * 2/ Compare to LED rise time
-   * 3/ histogram the difference between the 2 for each signals
-  */
 
   // Nb files processed
   int nFiles = 0;
@@ -33,6 +26,11 @@ int main(int argc, char *argv[]) {
   processArgs(&theApp, &nFiles, sources);
 
   PMTData *data[MAXNUMFILES];
+  PMTAnalyzer *analysis[MAXNUMFILES];
+  float meanCharge[MAXNUMFILES];
+  float led[MAXNUMFILES];
+
+  TGraph* linearity;
 
   // INSERT FUNCTIONS BELOW
   /////////////////////////
@@ -41,8 +39,20 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Processing file " << sources[iFile] << std::endl;
     data[iFile] = new PMTData(sources[iFile]);
-
+    analysis[iFile] = new PMTAnalyzer(data[iFile]);
+    analysis[iFile]->ComputeIntegralMean();
+    meanCharge[iFile] = analysis[iFile]->getMeanCharge();
+    led[iFile] = data[iFile]->getLed();
   }
+  linearity = new TGraph(nFiles, led, meanCharge);
+  linearity->SetTitle("Linear response against light intensity");
+  linearity->GetXaxis()->SetTitle("Led (au)");
+  linearity->GetYaxis()->SetTitle("Mean charge (V*ns)");
+  
+  linearity->Sort();
+  linearity->SetMarkerStyle(2);
+  linearity->Fit("pol1", "", "", 700, 1100);
+  linearity->Draw("AP");
 
   /////////////////////////
   // ...
