@@ -11,16 +11,6 @@ static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::stri
 
 int main(int argc, char *argv[]) {
 
-  /* TODO :
-   * Computing undershoot, so working with LED trigger and LED ON
-   * I think we should process like this
-   * 1/ Average all signal
-   * 2/ Find signal tail, a few ADC channels after signal peak
-   * 2/ Fit with exp
-   * 4/ Recover and print tau parameter of exp
-  */
-
-
   // Nb files processed
   int nFiles = 0;
 
@@ -36,7 +26,6 @@ int main(int argc, char *argv[]) {
   processArgs(&theApp, &nFiles, sources);
 
   PMTData *data[MAXNUMFILES];
-
   PMTAnalyzer *analysis[MAXNUMFILES];
 
   // INSERT FUNCTIONS BELOW
@@ -46,17 +35,14 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Processing file " << sources[iFile] << std::endl;
     data[iFile] = new PMTData(sources[iFile]);
-
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
-
-    analysis[iFile]->ComputeUndershoot();
-    analysis[iFile]->getMeanSignal(0)->Draw("l");
-
-    std::cout << "tailpos = " << analysis[iFile]->getTailPos(0) << std::endl;
-    std::cout << "undershoot = " << analysis[iFile]->getUndershoot() << " ns" << std::endl;
-    
-    
-  }// end iFile
+    analysis[iFile]->CreatePEdistribution();
+    analysis[iFile]->ComputeFit(3);
+    analysis[iFile]->DisplayFitParts();
+    analysis[iFile]->getPEdistribution()->Draw();
+    data[iFile]->WriteOutputFile();
+  }
+  
 
   /////////////////////////
   // ...
