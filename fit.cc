@@ -4,21 +4,12 @@
 #include <PMTData.hh>
 #include <PMTAnalyzer.hh>
 
-
 #define MAXNUMFILES 10000 // MAX nb of files processed
 
 static void show_usage(std::string name);
 static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources);
 
 int main(int argc, char *argv[]) {
-
-  /* TODO :
-   * Measure transition time spread (TTS) of PMT
-   * Work with low light I would say (we want TTS for 1 PE signals)
-   * 1/ Compute rise time for each signal
-   * 2/ Compare to LED rise time
-   * 3/ histogram the difference between the 2 for each signals
-  */
 
   // Nb files processed
   int nFiles = 0;
@@ -35,7 +26,7 @@ int main(int argc, char *argv[]) {
   processArgs(&theApp, &nFiles, sources);
 
   PMTData *data[MAXNUMFILES];
-  PMTAnalyzer* analysis[MAXNUMFILES];
+  PMTAnalyzer *analysis[MAXNUMFILES];
 
   // INSERT FUNCTIONS BELOW
   /////////////////////////
@@ -45,11 +36,13 @@ int main(int argc, char *argv[]) {
     std::cout << "Processing file " << sources[iFile] << std::endl;
     data[iFile] = new PMTData(sources[iFile]);
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
-
-    analysis[iFile]->ComputeTTS();
-    analysis[iFile]->getTTdistribution()->Draw();
-
+    analysis[iFile]->CreatePEdistribution();
+    analysis[iFile]->ComputeFit(3);
+    analysis[iFile]->DisplayFitParts();
+    analysis[iFile]->getPEdistribution()->Draw();
+    data[iFile]->WriteOutputFile();
   }
+  
 
   /////////////////////////
   // ...

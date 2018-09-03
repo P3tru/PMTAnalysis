@@ -6,10 +6,11 @@
 #define PMTANALYSIS_PMTDATA_H
 
 #include <fstream>
+#include <string.h>
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1I.h>
+#include <TH1F.h>
 #include <TGraph.h>
 
 #include <convert.h>
@@ -39,11 +40,20 @@ class PMTData {
 
   int nbSamples[MAXNUMCH];
 
+  int nbCh;
+  // Index of the channel containing the relevant data and trigger
+  unsigned int signalCh;
+  unsigned int triggerCh;
+
+  double tStep;
+
   // DAQ Ground base value;
-  int GND;
+  double GND;
+  // ADC Channel to volst conversion rate 
+  float voltConv;
 
   // Histograms of raw signal recorded by DAQ
-  std::vector<TH1I*> hSignal[MAXNUMCH];
+  std::vector<TH1F*> hSignal[MAXNUMCH];
 
   // TGraph of raw signal recorded by DAQ
   std::vector<TGraph*> gSignal[MAXNUMCH];
@@ -55,6 +65,7 @@ class PMTData {
   // Destructor
   ~PMTData();
 
+  void ComputeGND();
   bool OpenPMTDataTTree();
   void CreateWaveformsHistogram();
   void WriteOutputFile() { outputFile->Write(); } ;
@@ -66,13 +77,31 @@ class PMTData {
   void setNbEntries(int nbEntries){ PMTData::nbEntries = nbEntries; }
   long int getNbEntries() const { return nbEntries; }
 
-  void setGND(int GND){ PMTData::GND = GND; }
+  void setNbSamples(int iCh, int nbSamples){ PMTData::nbSamples[iCh] = nbSamples; }
+  int getNbSamples(int iCh) const { return nbSamples[iCh]; }
+
+  void setNbCh(int nbCh){ PMTData::nbCh = nbCh; }
+  int getNbCh() const { return nbCh; }
+
+  void setGND(float GND){ PMTData::GND = GND; }
   int getGND() const { return GND; }
 
-  TH1I* getSignalHistogram(int iCh, int iEntry) { return hSignal[iCh][iEntry];}
+  void setTriggerCh(int triggerCh){ PMTData::triggerCh = triggerCh;}
+  unsigned int getTriggerCh() const {return triggerCh;}
+
+  void setSignalCh(int signalCh){ PMTData::signalCh = signalCh;}
+  unsigned int getSignalCh() const {return signalCh;}
+
+  double getTimeStep() const { return tStep;}
+
+  float adc2V(UInt_t adc){ return ((float)adc-GND)*voltConv;};
+
+  TH1* getSignalHistogram(int iCh, int iEntry) { return hSignal[iCh][iEntry];}
 
   oscheader_global* getGlobalHeader(){ return hGlobal; }
   oscheader_ch* getChannelHeader(int ch){ return hCh[ch]; }
+
+  const char* getFileName(){ return dataFileName.c_str();}
 
   ////////////////////////////////////// //
   ////////////////////////////////////// //

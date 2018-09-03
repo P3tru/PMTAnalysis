@@ -17,12 +17,17 @@ PMTData::PMTData(std::string inputUserArg) {
 
   dataFileName = p.stem().string();
 
-  GND=0;
   nbEntries=0;
+  signalCh = 0;
+  triggerCh = 1;
 
   if(OpenPMTDataTTree()){
     std::cout << "Tree open successfully" << std::endl;
     CreateWaveformsHistogram();
+    std::cout << "GND and voltConv :" << std::endl;
+    std::cout << GND << std::endl;
+    std::cout << voltConv << std::endl;
+    
   }
 
   std::string str;
@@ -58,6 +63,19 @@ PMTData::~PMTData() {
   delete hGlobal;
 }
 
+void PMTData::ComputeGND(){
+  int sizeSubset = 0;
+  unsigned int sum = 0;
+  for(int iEntry = 0; iEntry < nbEntries; iEntry++){
+    treePMTData->GetEntry(iEntry);
+    for(int iSamp = (int)0.7*nbSamples[signalCh]; iSamp < nbSamples[signalCh]; iSamp++){
+      sum += data[signalCh][iSamp];
+      sizeSubset++;
+    }
+  }
+  GND = (float)sum/(float)sizeSubset;
+}
+
 bool PMTData::OpenPMTDataTTree(){
 
   treeHeader = (TTree*)inputFile->Get("PMTDataHeader");
@@ -71,7 +89,10 @@ bool PMTData::OpenPMTDataTTree(){
     treeHeader->SetBranchAddress("GlobalHeader",hGlobal);
     treeHeader->GetEntry(0);
 
-    for(unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
+    nbCh = hGlobal->NumCh;
+    tStep = hGlobal->TimeStep*1e9; // in ns
+
+    for(int iCh = 0; iCh < nbCh; iCh++){
 
       hCh[iCh] = new oscheader_ch();
       treeHeader->SetBranchAddress(Form("Ch%dHeader",iCh),hCh[iCh]);
@@ -84,8 +105,18 @@ bool PMTData::OpenPMTDataTTree(){
 
       hSignal[iCh].reserve(static_cast<unsigned long>(treePMTData->GetEntries()));
     }
+    nbEntries = treePMTData->GetEntries()-1;
 
-    nbEntries = treePMTData->GetEntries();
+    // Defining the parameters for conversion from adc to volts
+    if(!strcmp(hGlobal->InstID, "VMESIS6136")){
+      GND = 8214;
+      voltConv = 2.06/5000.0;
+    }
+    else{
+      GND = 218;
+      voltConv = hCh[signalCh]->Yscale;
+    }
+
     return nbEntries > 0;
 
   } else {
@@ -110,19 +141,25 @@ void PMTData::CreateWaveformsHistogram() {
     for(unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
 
       // Create histogram and graph of signal
-      hSignal[iCh][iEntry] = new TH1I(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
+      hSignal[iCh][iEntry] = new TH1F(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
                                       Form("Signal"),
                                       nbSamples[iCh],
-                                      0,
-                                      nbSamples[iCh]);
-      hSignal[iCh][iEntry]->GetXaxis()->SetTitle("Time (4ns)");
-      hSignal[iCh][iEntry]->GetYaxis()->SetTitle("ADC Channel");
+                                      -tStep/2,
+                                      (nbSamples[iCh]-1)*tStep + tStep/2);
+      hSignal[iCh][iEntry]->GetXaxis()->SetTitle("Time (ns)");
+      hSignal[iCh][iEntry]->GetYaxis()->SetTitle("Volts");
 
       // Fill hist and graph
-      for (int i = 0; i < nbSamples[iCh]; i++) {
-        hSignal[iCh][iEntry]->SetBinContent(i + 1, data[iCh][i]);
+      if(iCh == signalCh){
+	for (int i = 0; i < nbSamples[iCh]; i++) {
+	  hSignal[iCh][iEntry]->SetBinContent(i + 1, -adc2V(data[iCh][i]));
+	}
       }
-
+      else{
+	for (int i = 0; i < nbSamples[iCh]; i++) {
+	  hSignal[iCh][iEntry]->SetBinContent(i + 1, data[iCh][i]);
+	}
+      }
     } // END for iCh
 
     // Give status
@@ -134,3 +171,4 @@ void PMTData::CreateWaveformsHistogram() {
   } // END for iEntry
 
 }
+
