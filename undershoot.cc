@@ -7,7 +7,10 @@
 #define MAXNUMFILES 10000 // MAX nb of files processed
 
 static void show_usage(std::string name);
-static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources);
+static void processArgs(TApplication *theApp,
+                        int *nFiles,
+                        std::vector<std::string>& sources,
+                        std::string *outputPath=NULL);
 
 int main(int argc, char *argv[]) {
 
@@ -24,6 +27,9 @@ int main(int argc, char *argv[]) {
   // Nb files processed
   int nFiles = 0;
 
+  // Output directory
+  std::string out = "";
+
   // Create TApp
   TApplication theApp("App", &argc, argv);
 
@@ -33,7 +39,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   std::vector <std::string> sources;
-  processArgs(&theApp, &nFiles, sources);
+  processArgs(&theApp, &nFiles, sources, &out);
 
   PMTData *data[MAXNUMFILES];
 
@@ -46,13 +52,13 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Processing file " << sources[iFile] << std::endl;
     data[iFile] = new PMTData(sources[iFile]);
+    data[iFile]->setOutputDir(out);
 
     analysis[iFile] = new PMTAnalyzer(data[iFile]);
 
-    analysis[iFile]->ComputeUndershoot();
+    analysis[iFile]->ComputeUndershoot(0);
     analysis[iFile]->getMeanSignal(0)->Draw("l");
 
-    std::cout << "tailpos = " << analysis[iFile]->getTailPos() << std::endl;
     std::cout << "undershoot = " << analysis[iFile]->getUndershoot() << " ns" << std::endl;
     
     
@@ -78,7 +84,10 @@ static void show_usage(std::string name){
             << std::endl;
 }
 
-static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources){
+static void processArgs(TApplication *theApp,
+                        int *nFiles,
+                        std::vector<std::string>& sources,
+                        std::string *outputPath){
 
   // Reading user input parameters
   if (theApp->Argc() < 2) {
@@ -86,15 +95,13 @@ static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::stri
     exit(0);
   }
 
-  std::string outputPath = "0";
-
   for (int i = 1; i < theApp->Argc(); i++) {
     std::string arg = theApp->Argv(i);
     if ((arg == "-h") || (arg == "--help")) {
       show_usage(theApp->Argv(0));
       exit(0);
     } else if ((arg == "-o")) {
-      outputPath = theApp->Argv(++i);
+      *outputPath = theApp->Argv(++i);
     } else {
       if (i + 1 > theApp->Argc() && *nFiles == 0) {
         std::cout << "NO SOURCES PROVIDED !" << std::endl;

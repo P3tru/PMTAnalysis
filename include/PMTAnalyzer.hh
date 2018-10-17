@@ -41,7 +41,7 @@ class PMTAnalyzer {
 
   void CreateMeanSignal();
 
-  void ComputeUndershoot();
+  void ComputeUndershoot(int iCh);
   ////////////////////////////////////// //
   // Various accessors and set functions //
   ////////////////////////////////////// //

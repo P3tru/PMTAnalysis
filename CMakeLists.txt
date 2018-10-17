@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD 11)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 #---Locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} $ENV{ROOTSYS}/etc/cmake)
 find_package(ROOT REQUIRED COMPONENTS RIO Net)
 #find_package(ROOT CONFIG REQUIRED)
 if(NOT ROOT_FOUND)
@@ -40,4 +39,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable
 #
 add_executable(PMTAnalysis main.cc ${sources} ${headers})
+target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
+
+add_executable(Undershoot undershoot.cc ${sources} ${headers})
 target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)

@@ -28,38 +28,55 @@ PMTAnalyzer::~PMTAnalyzer(){
 
 
 void PMTAnalyzer::CreateMeanSignal(){
+
   for(int iCh = 0; iCh < data->getNbCh(); iCh++){
     double tStep = data->getTimeStep();
     meanSignal[iCh] = new TH1F(Form("meanSignal_%s_Ch%d", data->getFileName(), iCh),
-			       Form("MeanSignal"),
-			       data->getNbSamples(iCh),
-			       -tStep/2,
-			       (data->getNbSamples(iCh)-1)*tStep + tStep/2);
+                               Form("MeanSignal"),
+                               data->getNbSamples(iCh),
+                               -tStep/2,
+                               (data->getNbSamples(iCh)-1)*tStep + tStep/2);
     meanSignal[iCh]->SetXTitle("Time (ns)");
     meanSignal[iCh]->SetYTitle("Volts");
+
+    meanSignal[iCh]->SetMarkerSize(2);
     
     for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
       meanSignal[iCh]->Add(data->getSignalHistogram(iCh, iEntry));
     }// end iEntry
+
     meanSignal[iCh]->Scale((float)1/data->getNbEntries());
-    peakPos = (meanSignal[iCh]->GetMaximumBin()-1)*tStep;
-    tailPos = (meanSignal[iCh]->GetMinimumBin()-1)*tStep;
-    
+    peakPos = static_cast<float>((meanSignal[iCh]->GetMaximumBin()-1)*tStep);
+    tailPos = static_cast<float>((meanSignal[iCh]->GetMinimumBin()-1)*tStep);
+
   }// end iCh
 }
 
-void PMTAnalyzer::ComputeUndershoot(){
-  TF1* f = new TF1("f", "[0]*(1-exp(-(x-[1])/[2]))", tailPos, 2000);
-  f->SetParNames("const",
-		 "t0",
-		 "tau");  
-  f->SetParameters(2,
-		   0,
-		   25);
+void PMTAnalyzer::ComputeUndershoot(int iCh){
+  double tStep = data->getTimeStep();
+  TF1* f = new TF1("f",
+                   "[0]*(1-exp(-(x-[1])/[2]))+[3]",
+                   tailPos,
+                   (data->getNbSamples(iCh)-1)*tStep + tStep/2);
 
-  meanSignal[0]->Fit("f", "R");
+  f->SetParNames("baseline",
+                 "t0",
+                 "tau",
+                 "min");
 
-  undershoot = f->GetParameter(2);
+  double min = meanSignal[iCh]->GetBinContent(meanSignal[iCh]->GetMinimumBin());
+
+  f->SetParameter(0, 0);
+  f->SetParameter(1, tailPos);
+  f->SetParameter(2, 100);
+  f->SetParameter(3, min);
+
+  meanSignal[0]->GetYaxis()->SetRangeUser(
+      meanSignal[iCh]->GetBinContent(meanSignal[iCh]->GetMinimumBin())-1,1);
+
+  meanSignal[0]->Fit("f", "QSMER");
+
+  undershoot = static_cast<float>(f->GetParameter(2));
 
 }
 
