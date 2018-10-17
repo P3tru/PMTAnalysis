@@ -1,6 +1,7 @@
 #include <iostream>
 #include <TApplication.h>
 #include <TCanvas.h>
+#include <TRandom3.h>
 
 #include <PMTData.hh>
 
@@ -40,9 +41,18 @@ int main(int argc, char *argv[]) {
 
   }
 
-  TCanvas *c1 = new TCanvas("c1","c1",800,600);
-  data[0]->getSignalHistogram(0,0)->Draw();
-  
+  TCanvas *c1 = new TCanvas("c1","c1",1200,800);
+  TRandom3 *r = new TRandom3(0);
+
+  const int nbDiv=2;
+  c1->Divide(nbDiv,nbDiv);
+  for(int iC=0; iC<nbDiv*nbDiv; iC++){
+    c1->cd(iC+1);
+    int iPlot = r->Uniform(data[0]->getNbEntries());
+    data[0]->getSignalHistogram(0,iPlot)->Draw();
+//    data[0]->getSignalHistogram(0,iPlot)->Fit("pol0");
+  }
+
   /////////////////////////
   // ...
 

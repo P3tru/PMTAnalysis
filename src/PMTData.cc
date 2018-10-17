@@ -4,32 +4,26 @@
 
 #include <iostream>
 
-#include <boost/filesystem.hpp>
+#include <TF1.h>
 
-#include <utils.h>
 #include <PMTData.hh>
 
 PMTData::PMTData(std::string inputUserArg) {
 
   // Open TTree inside rootFile
   inputFile = new TFile(inputUserArg.c_str());
-  boost::filesystem::path p(inputUserArg);
+  p = inputUserArg;
 
   dataFileName = p.stem().string();
 
-  GND=0;
+  GND = 0;
+  voltConv = 2.06/5000.;
   nbEntries=0;
 
   if(OpenPMTDataTTree()){
     std::cout << "Tree open successfully" << std::endl;
     CreateWaveformsHistogram();
   }
-
-  std::string str;
-  str = p.parent_path().string() + "/" + p.stem().string() + "_FLAT.root";
-
-  outputFile = new TFile(str.c_str(),"RECREATE");
-  std::cout << "Created " << str.c_str() << std::endl;
 
 }
 
@@ -71,7 +65,10 @@ bool PMTData::OpenPMTDataTTree(){
     treeHeader->SetBranchAddress("GlobalHeader",hGlobal);
     treeHeader->GetEntry(0);
 
-    for(unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
+    nbCh = hGlobal->NumCh;
+    tStep = hGlobal->TimeStep*1e9; // in ns
+
+    for(int iCh = 0; iCh < nbCh; iCh++){
 
       hCh[iCh] = new oscheader_ch();
       treeHeader->SetBranchAddress(Form("Ch%dHeader",iCh),hCh[iCh]);
@@ -110,17 +107,20 @@ void PMTData::CreateWaveformsHistogram() {
     for(unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
 
       // Create histogram and graph of signal
-      hSignal[iCh][iEntry] = new TH1I(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
+      hSignal[iCh][iEntry] = new TH1F(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
                                       Form("Signal"),
                                       nbSamples[iCh],
-                                      0,
-                                      nbSamples[iCh]);
-      hSignal[iCh][iEntry]->GetXaxis()->SetTitle("Time (4ns)");
-      hSignal[iCh][iEntry]->GetYaxis()->SetTitle("ADC Channel");
+                                      -tStep/2,
+                                      (nbSamples[iCh]-1)*tStep + tStep/2);
+      hSignal[iCh][iEntry]->GetXaxis()->SetTitle("Time (ns)");
+      hSignal[iCh][iEntry]->GetYaxis()->SetTitle("Volts");
+
+      // Extract baseline
+      ExtractGND(iCh, data[iCh]);
 
       // Fill hist and graph
       for (int i = 0; i < nbSamples[iCh]; i++) {
-        hSignal[iCh][iEntry]->SetBinContent(i + 1, data[iCh][i]);
+        hSignal[iCh][iEntry]->SetBinContent(i + 1, -adc2V(data[iCh][i]));
       }
 
     } // END for iCh
@@ -134,3 +134,35 @@ void PMTData::CreateWaveformsHistogram() {
   } // END for iEntry
 
 }
+void PMTData::ExtractGND(int iCh, UInt_t *data) {
+
+  TH1I *hRAWSignal = new TH1I("hRaw","hRaw",
+                              nbSamples[iCh],
+                              -tStep/2,
+                              (nbSamples[iCh]-1)*tStep + tStep/2);
+
+  // Extract baseline
+  for (int i = 0; i < nbSamples[iCh]; i++) {
+    hRAWSignal->SetBinContent(i + 1, data[i]);
+  }
+  hRAWSignal->Fit("pol0","QSME0+");
+  TF1 *fit = hRAWSignal->GetFunction("pol0");
+  if(fit)
+    GND = (int)fit->GetParameter(0);
+  delete hRAWSignal;
+
+}
+void PMTData::WriteOutputFile() {
+
+  std::string str;
+  if(outputDir == "")
+    str = p.parent_path().string() + "/" + p.stem().string() + "_FLAT.root";
+  else
+    str = outputDir + "/" + p.stem().string() + "_FLAT.root";
+
+  outputFile = new TFile(str.c_str(),"RECREATE");
+  std::cout << "Created " << str.c_str() << std::endl;
+
+  outputFile->Write();
+}
+
