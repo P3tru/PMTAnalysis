@@ -17,7 +17,18 @@ PMTData::PMTData(std::string inputUserArg) {
   dataFileName = p.stem().string();
 
   GND = 0;
+  const int nbBinsGND=100;
+  hGND = new TH1D("hGND",
+                  "Extraded baseline values",
+                  nbBinsGND,
+                  8210,
+                  8220);
+  hGND->SetXTitle("ADC Channels");
+
+  hGND->SetMarkerSize(2);
+
   voltConv = 2.06/5000.;
+  voltConv = 1;
   nbEntries=0;
 
   if(OpenPMTDataTTree()){
@@ -147,8 +158,10 @@ void PMTData::ExtractGND(int iCh, UInt_t *data) {
   }
   hRAWSignal->Fit("pol0","QSME0+");
   TF1 *fit = hRAWSignal->GetFunction("pol0");
-  if(fit)
+  if(fit){
     GND = (int)fit->GetParameter(0);
+    hGND->Fill(GND);
+  }
   delete hRAWSignal;
 
 }

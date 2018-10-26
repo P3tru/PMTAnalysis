@@ -49,6 +49,7 @@ class PMTData {
 
   // DAQ Ground base value;
   int GND;
+  TH1D *hGND;
   // ADC Channel to Volt conversion rate
   float voltConv;
 
@@ -94,6 +95,8 @@ class PMTData {
   float adc2V(UInt_t adc){ return ((int)adc-GND)*voltConv;};
 
   TH1* getSignalHistogram(int iCh, int iEntry) { return hSignal[iCh][iEntry];}
+  TH1D* getMeanGND(){return hGND;}
+
 
   oscheader_global* getGlobalHeader(){ return hGlobal; }
   oscheader_ch* getChannelHeader(int ch){ return hCh[ch]; }

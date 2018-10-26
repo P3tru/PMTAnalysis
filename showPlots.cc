@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   TCanvas *c1 = new TCanvas("c1","c1",1200,800);
   TRandom3 *r = new TRandom3(0);
 
-  const int nbDiv=2;
+  const int nbDiv=4;
   c1->Divide(nbDiv,nbDiv);
   for(int iC=0; iC<nbDiv*nbDiv; iC++){
     c1->cd(iC+1);

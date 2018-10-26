@@ -30,9 +30,12 @@ class PMTAnalyzer {
   float peakPos;
   float tailPos;
 
-  float undershoot = 0;
+  float undershoot;
+  float undershootEr;
 
- 
+  // Histogram of Charge
+  TH1F* hQ[MAXNUMCH];
+
  public:
   // Constructor
   PMTAnalyzer(PMTData *inputdata);
@@ -42,17 +45,24 @@ class PMTAnalyzer {
   void CreateMeanSignal();
 
   void ComputeUndershoot(int iCh);
+
+  void ComputeQ(int iCh);
   ////////////////////////////////////// //
   // Various accessors and set functions //
   ////////////////////////////////////// //
 
   TH1F* getMeanSignal(int iCh){return meanSignal[iCh];}
+  TH1F* getChargeSignal(int iCh){return hQ[iCh];}
 
   float getPeakPos() const {return peakPos;}  
 
   float getTailPos() const {return tailPos;}
 
+  void setUndershoot(float undershoot){PMTAnalyzer::undershoot = undershoot;};
   float getUndershoot() const { return undershoot;}
+  void setUndershootEr(float undershoot){PMTAnalyzer::undershootEr = undershoot;};
+  float getUndershootEr() const { return undershootEr;}
+
 };
 
 #endif //PMTANALYSIS_PMTANALYZER_HH

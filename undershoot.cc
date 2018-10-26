@@ -59,7 +59,11 @@ int main(int argc, char *argv[]) {
     analysis[iFile]->ComputeUndershoot(0);
     analysis[iFile]->getMeanSignal(0)->Draw("l");
 
-    std::cout << "undershoot = " << analysis[iFile]->getUndershoot() << " ns" << std::endl;
+    std::cout << "undershoot = "
+              << analysis[iFile]->getUndershoot()
+              << " +- "
+              << analysis[iFile]->getUndershootEr()
+              << " ns" << std::endl;
     
     
   }// end iFile

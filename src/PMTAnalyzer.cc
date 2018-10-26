@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <PMTAnalyzer.hh>
 
 #include "PMTAnalyzer.hh"
 
@@ -77,6 +78,31 @@ void PMTAnalyzer::ComputeUndershoot(int iCh){
   meanSignal[0]->Fit("f", "QSMER");
 
   undershoot = static_cast<float>(f->GetParameter(2));
+  undershootEr = static_cast<float>(f->GetParError(2));
+
+}
+void PMTAnalyzer::ComputeQ(int iCh) {
+
+  double tStep = data->getTimeStep();
+  hQ[iCh] = new TH1F(Form("hQ_%s_Ch%d", data->getFileName(), iCh),
+                     Form("hQ"),
+                     500,
+                     -1000,
+                     1000);
+  hQ[iCh]->SetXTitle("Time (ns)");
+  hQ[iCh]->SetYTitle("Volts");
+
+  hQ[iCh]->SetMarkerSize(2);
+
+  // Loop on all signals
+  const int nQ = 32;
+  const int nbDiv = (int)(data->getNbSamples(iCh) / nQ);
+  for(int iEntry = 0; iEntry < data->getNbEntries(); iEntry++){
+    //Get integral
+    for(int iQ=0; iQ<nbDiv; iQ++){
+      hQ[iCh]->Fill(data->getSignalHistogram(iCh,iEntry)->Integral(1+iQ*nQ,(1+iQ)*nQ));
+    }
+  }// end iEntry
 
 }
 
