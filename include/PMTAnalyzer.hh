@@ -9,7 +9,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1F.h>
+#include <TH1D.h>
 #include <TF1.h>
 
 #include <TGraph.h>
@@ -24,7 +24,7 @@ class PMTAnalyzer {
   PMTData* data;
 
   // Histograms of mean signal
-  TH1F* meanSignal[MAXNUMCH];
+  TH1D* meanSignal[MAXNUMCH];
 
   // Positions of the peak and tail in the mean signal (extremum in 4ns unit)
   float peakPos;
@@ -34,7 +34,13 @@ class PMTAnalyzer {
   float undershootEr;
 
   // Histogram of Charge
-  TH1F* hQ[MAXNUMCH];
+  TH1D* hQ[MAXNUMCH];
+  TGraph* gDeltaQ[MAXNUMCH];
+
+  // Min and Max non-empty bins for Q histogram
+  double minQ;
+  double maxQ;
+  int nbBinsQ;
 
  public:
   // Constructor
@@ -47,12 +53,23 @@ class PMTAnalyzer {
   void ComputeUndershoot(int iCh);
 
   void ComputeQ(int iCh);
+
+  std::vector<double> ComputeQFitParams(int iCh);
+
+  std::vector<int> GetPeaksPos(TH1 *h);
+
+  void FitDarkCounts(int iCh, int color);
+
+  void SearchMinMaxHistQ(TH1 *h);
+
   ////////////////////////////////////// //
   // Various accessors and set functions //
   ////////////////////////////////////// //
 
-  TH1F* getMeanSignal(int iCh){return meanSignal[iCh];}
-  TH1F* getChargeSignal(int iCh){return hQ[iCh];}
+  TH1D* getMeanSignal(int iCh){return meanSignal[iCh];}
+  TH1D* getChargeSignal(int iCh){return hQ[iCh];}
+
+  TGraph* getDeltaQGraph(int iCh){return gDeltaQ[iCh];}
 
   float getPeakPos() const {return peakPos;}  
 
@@ -63,6 +80,34 @@ class PMTAnalyzer {
   void setUndershootEr(float undershoot){PMTAnalyzer::undershootEr = undershoot;};
   float getUndershootEr() const { return undershootEr;}
 
+  double getMinQ() const {
+    return minQ;
+  }
+
+  void setMinQ(double minQ) {
+    PMTAnalyzer::minQ = minQ;
+  }
+
+  double getMaxQ() const {
+    return maxQ;
+  }
+
+  void setMaxQ(double maxQ) {
+    PMTAnalyzer::maxQ = maxQ;
+  }
+
+ public:
+  int getNbBinsQ() const {
+    return nbBinsQ;
+  }
+  void setNbBinsQ(int nbBinsQ) {
+    PMTAnalyzer::nbBinsQ = nbBinsQ;
+  }
+
+  // Defining integration parameter in sample
+  int CFDTime = 2;
+  int nTot    = 16;
+  int nSize   = CFDTime+nTot;
 };
 
 #endif //PMTANALYSIS_PMTANALYZER_HH

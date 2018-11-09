@@ -118,7 +118,7 @@ void PMTData::CreateWaveformsHistogram() {
     for(unsigned int iCh = 0; iCh < hGlobal->NumCh; iCh++){
 
       // Create histogram and graph of signal
-      hSignal[iCh][iEntry] = new TH1F(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
+      hSignal[iCh][iEntry] = new TH1D(Form("hSignal_%s_%d_Ch%d", dataFileName.c_str(), iEntry,iCh),
                                       Form("Signal"),
                                       nbSamples[iCh],
                                       -tStep/2,
@@ -161,6 +161,7 @@ void PMTData::ExtractGND(int iCh, UInt_t *data) {
   if(fit){
     GND = (int)fit->GetParameter(0);
     hGND->Fill(GND);
+    delete fit;
   }
   delete hRAWSignal;
 

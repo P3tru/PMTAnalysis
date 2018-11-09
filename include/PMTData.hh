@@ -11,7 +11,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1F.h>
+#include <TH1D.h>
 #include <TGraph.h>
 
 #include <convert.h>
@@ -54,7 +54,7 @@ class PMTData {
   float voltConv;
 
   // Histograms of raw signal recorded by DAQ
-  std::vector<TH1F*> hSignal[MAXNUMCH];
+  std::vector<TH1D*> hSignal[MAXNUMCH];
 
   // TGraph of raw signal recorded by DAQ
   std::vector<TGraph*> gSignal[MAXNUMCH];
@@ -106,10 +106,6 @@ class PMTData {
   ////////////////////////////////////// //
   ////////////////////////////////////// //
 
-  // Defining integration parameter in sample
-  int CFDTime    = 5;
-  int nTot       = 60;
-  int nSize      = CFDTime+nTot;
 };
 
 

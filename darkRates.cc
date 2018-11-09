@@ -1,49 +1,112 @@
 #include <iostream>
+
 #include <TApplication.h>
+#include <TCanvas.h>
+#include <TRandom3.h>
+#include <TColor.h>
+#include <TSpectrum.h>
 
 #include <PMTData.hh>
 #include <PMTAnalyzer.hh>
+#include <PMTParser.hh>
+
+#include "utils.h"
 
 #define MAXNUMFILES 10000 // MAX nb of files processed
 
-static void show_usage(std::string name);
-static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources);
 
 int main(int argc, char *argv[]) {
-
-  /* TODO :
-   * Computing dark rate of the signal, so working with files with triger LED but LED OFF
-   * I think we should process like this
-   * 1/ Histogram of charges of signals
-   * 2/ Use photoelectrons fit for measuring any pic after pedestal
-   * 3/ Use time of the runs to normalize and compute rates
-   */
-
-  // Nb files processed
-  int nFiles = 0;
 
   // Create TApp
   TApplication theApp("App", &argc, argv);
 
-  // Reading user input parameters
-  if (theApp.Argc() < 2) {
-    show_usage(theApp.Argv(0));
-    return 1;
-  }
-  std::vector <std::string> sources;
-  processArgs(&theApp, &nFiles, sources);
+  PMTParser parserApp(&theApp);
+  parserApp.LaunchApp();
 
   PMTData *data[MAXNUMFILES];
+  PMTAnalyzer *analysis[MAXNUMFILES];
+
+  TCanvas *c1;
+  TF1 *fit;
+  TF1 *fPED;
+  TF1 *fEXP;
+  TF1 *fSPE;
+  TColor *Color = new TColor();
+  std::vector<int> palette = createColor(Color);
+
+  TH1D *hQMean = new TH1D("hQMean","Mean measured DN rates",100,0.,10000.);
 
   // INSERT FUNCTIONS BELOW
   /////////////////////////
 
-  for(int iFile=0; iFile < nFiles;iFile++){
+  for(int iFile=0; iFile < parserApp.getNFiles();iFile++){
 
-    std::cout << "Processing file " << sources[iFile] << std::endl;
-    data[iFile] = new PMTData(sources[iFile]);
+    std::cout << "Processing file " << parserApp.getPathSources()[iFile] << std::endl;
+    data[iFile] = new PMTData(parserApp.getPathSources()[iFile]);
+    analysis[iFile] = new PMTAnalyzer(data[iFile]);
 
-  }
+    /////////////////
+    // DO ANALYSIS //
+    /////////////////
+
+    const int iCh = 0;
+
+    c1 = new TCanvas(Form("cQ_%d",iFile),Form("cQ_%d",iFile),1200,800);
+    c1->SetLogy();
+    c1->SetGrid();
+    analysis[iFile]->ComputeQ(iCh);
+    analysis[iFile]->getChargeSignal(iCh)->Draw("E");
+    analysis[iFile]->FitDarkCounts(iCh,palette[0]);
+
+    // Recover fit parameter and Draw
+    fit = analysis[iFile]->getChargeSignal(iCh)->GetFunction("fitPMT");
+    double minQ = analysis[iFile]->getMinQ();
+    double maxQ = analysis[iFile]->getMaxQ();
+
+    fPED = new TF1("fPED",simpleGaus,minQ,maxQ,3);
+    fPED->SetParameter(0,fit->GetParameter(0));
+    fPED->SetParameter(1,fit->GetParameter(1));
+    fPED->SetParameter(2,fit->GetParameter(2));
+    fPED->SetLineColor(palette[1]);
+    fPED->SetLineStyle(2);
+    fPED->SetLineWidth(2.);
+    fPED->SetFillColor(palette[1]);
+    fPED->SetFillStyle(3004);
+    fPED->SetFillColorAlpha(palette[1], 0.35);
+    fPED->Draw("SAME C");
+
+    fEXP  = new TF1("fEXP",simpleExpBckg,minQ,maxQ,3);
+    fEXP->SetParameter(0,fit->GetParameter(5));
+    fEXP->SetParameter(1,fit->GetParameter(6));
+    fEXP->SetParameter(2,fit->GetParameter(7));
+    fEXP->SetLineColor(palette[3]);
+    fEXP->SetLineStyle(2);
+    fEXP->SetLineWidth(2.);
+    fEXP->Draw("SAME");
+
+    double lambda = fit->GetParameter(8);
+    const double norm =  (int)(data[iFile]->getNbSamples(iCh) / analysis[iFile]->nTot) * data[iFile]->getNbEntries();
+    for(int k=1; k<5 ; k++){
+      fSPE = new TF1("fSPE",simpleGaus,minQ,maxQ,3);
+      fSPE->SetParameter(0,fit->GetParameter(0)*std::pow(lambda,k)*TMath::Exp(-lambda)/TMath::Factorial(k));
+      fSPE->SetParameter(1,fit->GetParameter(3));
+      fSPE->SetParameter(2,fit->GetParameter(4));
+      fSPE->SetLineColor(palette[2]);
+      fSPE->SetFillColor(palette[2]);
+      fSPE->SetFillStyle(3004);
+      fSPE->SetFillColorAlpha(palette[2], 0.35);
+      fSPE->SetLineStyle(2);
+      fSPE->SetLineWidth(2.);
+      fSPE->Draw("SAME C");
+
+      std::cout << "Rate PE#" << k <<  " : " << fSPE->Integral(minQ,maxQ)*norm << " Hz" << std::endl;
+      if(k==1) hQMean->Fill(fSPE->Integral(minQ,maxQ)*norm);
+    }
+
+  } // END FOR iFILE
+
+  std::cout << "Mean DN value measured : " << hQMean->GetMean()
+            << " +- " << hQMean->GetRMS() << std::endl;
 
   /////////////////////////
   // ...
@@ -53,53 +116,4 @@ int main(int argc, char *argv[]) {
   theApp.Run(kTRUE);
 
   return 0;
-}
-
-static void show_usage(std::string name){
-  std::cerr << "Usage: " << name << " <option(s)> SOURCES" << std::endl
-            << "Options:\n"
-            << "\t-h\tShow this help message\n"
-            << "\t-o\tOutput path\n"
-            << std::endl
-            << "\tSOURCES\tSpecify input data file (.txt)\n"
-            << std::endl;
-}
-
-static void processArgs(TApplication *theApp, int *nFiles, std::vector<std::string>& sources){
-
-  // Reading user input parameters
-  if (theApp->Argc() < 2) {
-    show_usage(theApp->Argv(0));
-    exit(0);
-  }
-
-  std::string outputPath = "0";
-
-  for (int i = 1; i < theApp->Argc(); i++) {
-    std::string arg = theApp->Argv(i);
-    if ((arg == "-h") || (arg == "--help")) {
-      show_usage(theApp->Argv(0));
-      exit(0);
-    } else if ((arg == "-o")) {
-      outputPath = theApp->Argv(++i);
-    } else {
-      if (i + 1 > theApp->Argc() && *nFiles == 0) {
-        std::cout << "NO SOURCES PROVIDED !" << std::endl;
-        show_usage(theApp->Argv(0));
-        exit(0);
-      } else {
-        std::cout << "Add " << arg << " to sources" << std::endl;
-        sources.push_back(arg);
-        (*nFiles)++;
-      }
-    }
-  }
-
-
-  if (nFiles == 0) {
-    std::cout << "NO SOURCES DETECTED !" << std::endl;
-    show_usage(theApp->Argv(0));
-    exit(0);
-  }
-
 }

@@ -43,3 +43,6 @@ target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
 
 add_executable(Undershoot undershoot.cc ${sources} ${headers})
 target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
+
+add_executable(DarkRates darkRates.cc ${sources} ${headers})
+target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
