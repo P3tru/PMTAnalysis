@@ -46,3 +46,12 @@ target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
 
 add_executable(DarkRates darkRates.cc ${sources} ${headers})
 target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
+
+add_executable(ShowPlots showPlots.cc ${sources} ${headers})
+target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
+
+add_executable(SlidingWindow slidingWindow.cc ${sources} ${headers})
+target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)
+
+add_executable(CreateFlatTree createFlatTree.cc ${sources} ${headers})
+target_link_libraries(PMTAnalysis ${ROOT_LIBRARIES} ${Boost_LIBRARIES} -lUtils)

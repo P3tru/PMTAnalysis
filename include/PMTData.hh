@@ -14,6 +14,8 @@
 #include <TH1D.h>
 #include <TGraph.h>
 
+#include "PMTParser.hh"
+
 #include <convert.h>
 
 #define MAXNUMCH 32 // Max nb of channels expected from DAQ
@@ -21,12 +23,15 @@
 class PMTData {
  protected:
   // Input file
+  int iFile;
   TFile *inputFile;
   std::string dataFileName;
   boost::filesystem::path p;
+  bool isInputFileFlat;
   // Output file
-  TFile *outputFile;
+  std::vector<TFile *> outputFile;
   std::string outputDir;
+  bool writeOutput;
 
   // Tree containing header
   TTree *treeHeader;
@@ -39,37 +44,45 @@ class PMTData {
   UInt_t *data[MAXNUMCH];
 
   // Nb of entries to be processed
-  long int nbEntries;
-
-  int nbSamples[MAXNUMCH];
-
-  int nbCh;
-
+  unsigned long nbEntries;
+  unsigned long nbSamples[MAXNUMCH];
+  unsigned  int nbCh;
   double tStep;
 
   // DAQ Ground base value;
   int GND;
   TH1D *hGND;
   // ADC Channel to Volt conversion rate
-  float voltConv;
+  double voltConv;
 
   // Histograms of raw signal recorded by DAQ
-  std::vector<TH1D*> hSignal[MAXNUMCH];
+  TH1I *hRAWSignal;
+  std::vector< std::vector<TH1D*> > hSignal;
 
   // TGraph of raw signal recorded by DAQ
-  std::vector<TGraph*> gSignal[MAXNUMCH];
+  std::vector< std::vector<TGraph*> > gSignal;
 
 
  public:
   // Constructor
-  PMTData(std::string inputUserArg);
+  PMTData(PMTParser const& parser, int indexFile);
   // Destructor
   ~PMTData();
 
+  void SetGNDHist(unsigned int nbBinsGND=100, int minGND=8150, int maxGND=8250);
+  void SetDummyRawHistogram(int iCh);
+
   bool OpenPMTDataTTree();
+  bool OpenPMTDataFlatTree();
+
   void CreateWaveformsHistogram();
+
   void ExtractGND(int iCh, UInt_t *data);
-  void WriteOutputFile();
+  void SetTGraphSignals(int iCh, int iEntry);
+
+  void SetOutputFile(int iFile = 0);
+  void WriteOutputFile(int nbMaxEntriesPerFile = -1);
+
 
   ////////////////////////////////////// //
   // Various accessors and set functions //
@@ -90,18 +103,46 @@ class PMTData {
   void setOutputDir(std::string outputDir){ PMTData::outputDir = outputDir; }
   std::string getOutputDir() const { return outputDir; }
 
-  double getTimeStep() const { return tStep;}
+  double getTimeStep() const { return tStep;} // IN NANOSEC !!!
+  double getTimeStepSEC() const { return tStep*1e-9;} // IN NANOSEC !!!
 
-  float adc2V(UInt_t adc){ return ((int)adc-GND)*voltConv;};
+  double adc2V(UInt_t adc){ return ((int)adc-GND)*voltConv;};
 
-  TH1* getSignalHistogram(int iCh, int iEntry) { return hSignal[iCh][iEntry];}
+  TGraph* getSignalGraph(int iCh, int iEntry) { return gSignal[iCh][iEntry];}
+
   TH1D* getMeanGND(){return hGND;}
 
+  // const std::vector<TH1D *> *getHSignal() const {
+  //   return hSignal;
+  // }
+  const std::vector<std::vector<TH1D *>> &getHSignal() const {
+    return hSignal;
+  }
 
   oscheader_global* getGlobalHeader(){ return hGlobal; }
   oscheader_ch* getChannelHeader(int ch){ return hCh[ch]; }
 
   const char* getFileName(){ return dataFileName.c_str();}
+
+  bool isWriteOutput() const {
+    return writeOutput;
+  }
+  void setWriteOutput(bool writeOutput) {
+    PMTData::writeOutput = writeOutput;
+  }
+  int getIFile() const {
+    return iFile;
+  }
+  void setIFile(int iFile) {
+    PMTData::iFile = iFile;
+  }
+
+  bool isIsInputFileFlat() const {
+    return isInputFileFlat;
+  }
+  void setIsInputFileFlat(bool isInputFileFlat) {
+    PMTData::isInputFileFlat = isInputFileFlat;
+  }
 
   ////////////////////////////////////// //
   ////////////////////////////////////// //
